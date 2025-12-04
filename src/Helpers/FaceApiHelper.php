@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Helpers;
@@ -8,42 +9,49 @@ namespace App\Helpers;
  */
 class FaceApiHelper
 {
-    private const API_URL = 'https://face.nafish.me/api/rest/client-token';
+  private const API_URL = 'https://face.nafish.me/api/rest/client-token';
 
-    /**
-     * Generate client token from Face API.
-     *
-     * @param string $code
-     * @param string|null $bearerToken
-     * @return array|null
-     */
-    public static function generateTokens(string $code = 'ORG1', ?string $bearerToken = null): ?array
-    {
-        $data = json_encode(['code' => $code]);
+  /**
+   * Generate client token from Face API.
+   *
+   * @param string $code
+   * @param string|null $bearerToken
+   * @return array|null
+   */
+  public static function generateTokens(): ?array
+  {
+    $data = json_encode(['code' => 'ORG1']);
 
-        $headers = [
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($data)
-        ];
+    $headers = [
+      'Content-Type: application/json',
+      'Content-Length: ' . strlen($data)
+    ];
+    $token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoicmVzdCIsIm9yZyI6eyJjb2RlIjoiT1JHMSJ9LCJpYXQiOjE3NjQ4NTM4MjgsImV4cCI6MTc2NDg1NzQyOH0.3b3OKeHOHg6qlbAR6j2Vdx1UhQ2PJ1pXU3E2i6DDwaA";
+    $headers[] = "Authorization: Bearer $token";
 
-        if ($bearerToken) {
-            $headers[] = 'Authorization: Bearer ' . $bearerToken;
+    $ch = curl_init(self::API_URL);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    try {
+      $data = null;
+      if ($httpCode === 200 && $response) {
+        $decoded = json_decode($response, true);
+        if(isset($decoded['result'])) {
+          if(isset($decoded['result']['tokens'])) {
+            return $decoded['result']['tokens'];
+          }
         }
-
-        $ch = curl_init(self::API_URL);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode === 200 && $response) {
-            return json_decode($response, true);
-        }
-
-        return null;
+      }
+    } catch (\Exception $e) {
+      return null;
     }
+    return null;
+  }
 }
