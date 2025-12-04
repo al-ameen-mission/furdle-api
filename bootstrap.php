@@ -16,7 +16,6 @@ $router = new AutoRouter();
 
 // Manually load specified route files
 $routeFiles = [
-    __DIR__ . '/src/Routes/web.php',
     __DIR__ . '/src/Routes/api.php',
 ];
 

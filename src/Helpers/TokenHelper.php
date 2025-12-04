@@ -4,69 +4,85 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
 /**
- * Token Helper for generating and validating tokens.
+ * Token Helper for generating and validating JWT tokens.
  */
 class TokenHelper
 {
-  /**
-   * Generate access and refresh tokens.
-   *
-   * @return array
-   */
-  public static function generate(array $payload): array
-  {
-    $token_id = rand(1111111111, 9999999999);
-    $accessToken = EncryptionHelper::encryptJson([
-      'id' => $token_id,
-      "type" => "access",
-      'payload' => $payload,
-      'exp' => time() + 3600 // 1 hour expiration
-    ]);
-    $refreshToken = EncryptionHelper::encryptJson([
-      "access_token_id" => $accessToken,
-      "type" => "refresh",
-      'exp' => time() + 604800 // 1 week expiration
-    ]);
+    private const SECRET_KEY = 'your-secret-key-here-change-in-production';
+    private const ALGORITHM = 'HS256';
 
-    return [
-      'access' => $accessToken,
-      'refresh' => $refreshToken
-    ];
-  }
+    /**
+     * Generate access and refresh tokens.
+     *
+     * @param array $payload
+     * @return array
+     */
+    public static function generate(array $payload): array
+    {
+        $tokenId = rand(1111111111, 9999999999);
 
-  /**
-   * Validate a token.
-   *
-   * @param string $token
-   * @return bool
-   */
-  public static function validate(string $token): bool
-  {
-    try {
-      $token = EncryptionHelper::decryptJson($token);
-      if (!$token || !isset($token['exp']) || $token['exp'] < time()) {
-        return false;
-      }
-      return true;
-    } catch (\Exception $e) {
-      return false;
-    }
-  }
+        $accessPayload = [
+            'iss' => 'your-app',
+            'aud' => 'your-app-users',
+            'iat' => time(),
+            'exp' => time() + 3600, // 1 hour
+            'jti' => $tokenId,
+            'type' => 'access',
+            'user' => $payload
+        ];
 
-  /**
-   * Decode a token to get user data.
-   *
-   * @param string $token
-   * @return array|null
-   */
-  public static function decode(string $token): ?array
-  {
-    if (!self::validate($token)) {
-      return null;
+        $refreshPayload = [
+            'iss' => 'your-app',
+            'aud' => 'your-app-users',
+            'iat' => time(),
+            'exp' => time() + 604800, // 1 week
+            'jti' => $tokenId,
+            'type' => 'refresh',
+            'access_token_id' => $tokenId
+        ];
+
+        $accessToken = JWT::encode($accessPayload, self::SECRET_KEY, self::ALGORITHM);
+        $refreshToken = JWT::encode($refreshPayload, self::SECRET_KEY, self::ALGORITHM);
+
+        return [
+            'access' => $accessToken,
+            'refresh' => $refreshToken
+        ];
     }
 
-    $token = EncryptionHelper::decryptJson($token);
-    return $token['user'] ?? null;
-  }
+    /**
+     * Validate a token.
+     *
+     * @param string $token
+     * @return bool
+     */
+    public static function validate(string $token): bool
+    {
+        try {
+            JWT::decode($token, new Key(self::SECRET_KEY, self::ALGORITHM));
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Decode a token to get user data.
+     *
+     * @param string $token
+     * @return array|null
+     */
+    public static function decode(string $token): ?array
+    {
+        try {
+            $decoded = JWT::decode($token, new Key(self::SECRET_KEY, self::ALGORITHM));
+            return (array) $decoded;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
 }

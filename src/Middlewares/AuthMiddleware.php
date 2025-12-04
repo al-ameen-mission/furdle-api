@@ -25,17 +25,16 @@ class AuthMiddleware implements Middleware
 
     $token = substr($authHeader, 7); // Remove 'Bearer '
 
+
     if (!TokenHelper::validate($token)) {
       $res->status(401)->send('Invalid token');
       return;
     }
 
+
     // Set auth data (dummy for now, in real app decode token to get user data)
-    $req->auth = [
-      'user_id' => '123',
-      'name' => 'John Doe',
-      'email' => 'john.doe@example.com'
-    ];
+
+    $req->auth = TokenHelper::decode($token);
 
     $next();
   }
