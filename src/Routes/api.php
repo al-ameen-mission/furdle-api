@@ -26,6 +26,6 @@ return function($router) {
         });
 
         // Events
-        $router->post('/events', 'App\Controllers\EventsController@index');
+        $router->post('/events', 'App\Controllers\EventController@index');
     }, ['App\Middlewares\JsonMiddleware']);
 };

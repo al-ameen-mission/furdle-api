@@ -9,7 +9,7 @@ use App\Core\Response;
 /**
  * Events Controller for handling event-related routes.
  */
-class EventsController
+class EventController
 {
     /**
      * Get list of events/attendance records.
