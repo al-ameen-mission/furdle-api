@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Helpers\TokenHelper;
 use App\Core\Request;
 use App\Core\Response;
 
@@ -28,8 +29,8 @@ class UserController
             return;
         }
 
-        // Dummy token validation
-        if (strlen($authHeader) < 10) {
+        // Validate token
+        if (!TokenHelper::validate($authHeader)) {
             $res->status(401)->json([
                 'code' => 'error',
                 'message' => 'Invalid token'

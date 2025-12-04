@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Helpers\TokenHelper;
+
 /**
  * Request class to encapsulate HTTP request data.
  */
@@ -106,5 +108,22 @@ class Request
     public function allFiles(): array
     {
         return $this->files;
+    }
+
+    /**
+     * Get authenticated user data from token.
+     *
+     * @return array|null
+     */
+    public function auth(): ?array
+    {
+        $authHeader = $this->header('Authorization');
+        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+            return null;
+        }
+
+        $token = substr($authHeader, 7); // Remove 'Bearer '
+
+        return TokenHelper::decode($token);
     }
 }

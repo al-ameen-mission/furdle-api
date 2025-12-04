@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Helpers\TokenHelper;
 use App\Core\Request;
 use App\Core\Response;
 
@@ -34,17 +35,16 @@ class AuthController
 
     // Dummy validation (replace with real auth logic)
     if ($username === 'admin' && $password === 'password') {
-      // Generate tokens (simple random strings for demo)
-      $accessToken = bin2hex(random_bytes(32));
-      $refreshToken = bin2hex(random_bytes(32));
+      // Generate tokens
+      $tokens = TokenHelper::generate();
 
       $res->json([
         'code' => 'success',
         'message' => 'Login successful',
         'result' => [
           'tokens' => [
-            'access' => $accessToken,
-            'refresh' => $refreshToken
+            'access' => $tokens['access'],
+            'refresh' => $tokens['refresh']
           ],
           'user' => [
             'id' => '123',
@@ -68,17 +68,8 @@ class AuthController
    */
   public function verify(Request $req, Response $res): void
   {
-    $authHeader = $req->header('Authorization');
-    if (!$authHeader) {
-      $res->status(401)->json([
-        'code' => 'error',
-        'message' => 'Authorization header required'
-      ]);
-      return;
-    }
-
-    // Dummy token validation (replace with real JWT or token validation)
-    if (strlen($authHeader) < 10) { // Simple check for demo
+    $user = $req->auth();
+    if (!$user) {
       $res->status(401)->json([
         'code' => 'error',
         'message' => 'Invalid token'
@@ -86,22 +77,15 @@ class AuthController
       return;
     }
 
-    // Dummy user data (replace with real user lookup from token)
-    $res->json(
-      [
-        'code' => 'success',
-        'message' => 'Token verified successfully',
-        'result' => [
-          'user' => [
-            'id' => '123',
-            'name' => 'John Doe',
-            'email' => 'john.doe@example.com'
-          ],
-          'isAttendanceAllowed' => true,
-          'isRegisterAllowed' => true
-        ]
+    $res->json([
+      'code' => 'success',
+      'message' => 'Token verified successfully',
+      'result' => [
+        'user' => $user,
+        'isAttendanceAllowed' => true,
+        'isRegisterAllowed' => true
       ]
-    );
+    ]);
   }
   /**
    * Validate user password with token.
