@@ -18,6 +18,9 @@ class AuthMiddleware implements Middleware
   public function handle(Request $req, Response $res, callable $next): void
   {
     $authHeader = $req->header('Authorization');
+    if (empty($authHeader)) {
+      $authHeader = $req->header('authorization');
+    }
     if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
       $res->status(401)->send('Unauthorized');
       return;
