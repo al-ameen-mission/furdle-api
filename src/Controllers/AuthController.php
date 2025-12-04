@@ -37,12 +37,11 @@ class AuthController
 
     // Dummy validation (replace with real auth logic)
     if ($username === 'admin' && $password === 'password') {
+      // Get static auth user data
+      $user = \App\Helpers\MockDataHelper::getAuthUser();
+
       // Generate tokens
-      $tokens = TokenHelper::generate([
-        'id' => '123',
-        'name' => 'John Doe',
-        'email' => 'john.doe@example.com'
-      ]);
+      $tokens = TokenHelper::generate($user);
 
       $faceToken = FaceApiHelper::generateToken();
 
@@ -55,11 +54,7 @@ class AuthController
             'refresh' => $tokens['refresh']
           ],
           'faceToken' => $faceToken,
-          'user' => [
-            'id' => '123',
-            'name' => 'John Doe',
-            'email' => 'john.doe@example.com'
-          ]
+          'user' => $user
         ]
       ]);
     } else {
@@ -104,12 +99,9 @@ class AuthController
       ]);
       return;
     }
-    // Generate new tokens
-    $tokens = TokenHelper::generate([
-      'id' => '123',
-      'name' => 'John Doe',
-      'email' => 'john.doe@example.com'
-    ]);
+    // Generate new tokens with static auth user data
+    $user = \App\Helpers\MockDataHelper::getAuthUser();
+    $tokens = TokenHelper::generate($user);
 
     //get new face token
     $faceToken = FaceApiHelper::generateToken();

@@ -1,0 +1,293 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Helpers;
+
+/**
+ * Mock Data Helper for generating realistic test data.
+ */
+class MockDataHelper
+{
+    private static array $users = [
+        [
+            'id' => '00001',
+            'name' => 'John Doe',
+            'email' => 'john.doe@example.com',
+            'type' => 'student',
+            'branch' => 'XFM1000231',
+            'session' => '2025',
+            'class' => '5',
+            'faceId' => 'face_67890',
+            'created_at' => '2024-01-15 10:30:00'
+        ],
+        [
+            'id' => '00002',
+            'name' => 'Jane Smith',
+            'email' => 'jane.smith@example.com',
+            'type' => 'student',
+            'branch' => 'XFM1000231',
+            'session' => '2025',
+            'class' => '5',
+            'faceId' => 'face_67891',
+            'created_at' => '2024-01-16 11:45:00'
+        ],
+        [
+            'id' => '00003',
+            'name' => 'Mike Johnson',
+            'email' => 'mike.johnson@example.com',
+            'type' => 'staff',
+            'branch' => 'XFM1000231',
+            'session' => '2025',
+            'class' => '5',
+            'faceId' => 'face_67892',
+            'created_at' => '2024-01-17 09:15:00'
+        ],
+        [
+            'id' => '00004',
+            'name' => 'Sarah Wilson',
+            'email' => 'sarah.wilson@example.com',
+            'type' => 'student',
+            'branch' => 'XFM1000232',
+            'session' => '2025',
+            'class' => '6',
+            'faceId' => 'face_67893',
+            'created_at' => '2024-01-18 14:20:00'
+        ],
+        [
+            'id' => '00005',
+            'name' => 'David Brown',
+            'email' => 'david.brown@example.com',
+            'type' => 'staff',
+            'branch' => 'XFM1000232',
+            'session' => '2025',
+            'class' => '6',
+            'faceId' => 'face_67894',
+            'created_at' => '2024-01-19 16:30:00'
+        ]
+    ];
+
+    private static array $events = [
+        [
+            'id' => '1',
+            'name' => 'Mathematics',
+            'description' => 'A branch of science concerned with the properties and relations of numbers and quantities and shapes.',
+            'facePayload' => [
+                'type' => 'student',
+                'branch' => 'XFM1000231',
+                'session' => '2025',
+                'class' => '5'
+            ],
+            'created_at' => '2024-11-01 08:00:00',
+            'is_active' => true
+        ],
+        [
+            'id' => '2',
+            'name' => 'Admission 2025',
+            'description' => 'Information regarding the admission process for the year 2025.',
+            'facePayload' => [
+                'type' => 'admission',
+                'session' => '2025',
+                'class' => '5'
+            ],
+            'created_at' => '2024-11-02 09:00:00',
+            'is_active' => true
+        ],
+        [
+            'id' => '3',
+            'name' => 'Staff (Branch Only)',
+            'description' => 'Staff meeting for XFM1000231 branch.',
+            'facePayload' => [
+                'type' => 'staff',
+                'branch' => 'XFM1000231'
+            ],
+            'created_at' => '2024-11-03 10:00:00',
+            'is_active' => true
+        ],
+        [
+            'id' => '4',
+            'name' => 'Staff (Global)',
+            'description' => 'General announcements for all students and staff.',
+            'facePayload' => [
+                'type' => 'staff'
+            ],
+            'created_at' => '2024-11-04 11:00:00',
+            'is_active' => true
+        ],
+        [
+            'id' => '5',
+            'name' => 'Mathematics (All Students)',
+            'description' => 'Mathematics class for all students in session 2025.',
+            'facePayload' => [
+                'type' => 'student',
+                'session' => '2025',
+                'class' => '5'
+            ],
+            'created_at' => '2024-11-05 12:00:00',
+            'is_active' => true
+        ],
+        [
+            'id' => '6',
+            'name' => 'Physics Class 6',
+            'description' => 'Physics class for grade 6 students.',
+            'facePayload' => [
+                'type' => 'student',
+                'branch' => 'XFM1000232',
+                'session' => '2025',
+                'class' => '6'
+            ],
+            'created_at' => '2024-11-06 13:00:00',
+            'is_active' => true
+        ],
+        [
+            'id' => '7',
+            'name' => 'Chemistry Lab',
+            'description' => 'Chemistry laboratory session for students.',
+            'facePayload' => [
+                'type' => 'student',
+                'session' => '2025',
+                'class' => '5'
+            ],
+            'created_at' => '2024-11-07 14:00:00',
+            'is_active' => true
+        ],
+        [
+            'id' => '8',
+            'name' => 'Staff Meeting XFM1000232',
+            'description' => 'Branch-specific staff meeting.',
+            'facePayload' => [
+                'type' => 'staff',
+                'branch' => 'XFM1000232'
+            ],
+            'created_at' => '2024-11-08 15:00:00',
+            'is_active' => true
+        ]
+    ];
+
+    private static array $authUser = [
+        'id' => '99999',
+        'name' => 'Admin User',
+        'email' => 'admin@example.com',
+        'type' => 'admin',
+        'branch' => 'XFM1000231',
+        'session' => '2025',
+        'class' => '0',
+        'faceId' => 'face_admin',
+        'created_at' => '2024-01-01 00:00:00'
+    ];
+
+    /**
+     * Get all users.
+     *
+     * @return array
+     */
+    public static function getUsers(): array
+    {
+        return self::$users;
+    }
+
+    /**
+     * Get user by ID.
+     *
+     * @param string $id
+     * @return array|null
+     */
+    public static function getUserById(string $id): ?array
+    {
+        foreach (self::$users as $user) {
+            if ($user['id'] === $id) {
+                return $user;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get all events.
+     *
+     * @return array
+     */
+    public static function getEvents(): array
+    {
+        return self::$events;
+    }
+
+    /**
+     * Get event by ID.
+     *
+     * @param string $id
+     * @return array|null
+     */
+    public static function getEventById(string $id): ?array
+    {
+        foreach (self::$events as $event) {
+            if ($event['id'] === $id) {
+                return $event;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get auth user (admin user for login).
+     *
+     * @return array
+     */
+    public static function getAuthUser(): array
+    {
+        return self::$authUser;
+    }
+
+    /**
+     * Generate a single mock user for lookup.
+     *
+     * @param string $type
+     * @param string $code
+     * @return array
+     */
+    public static function generateUserLookup(string $type, string $code): array
+    {
+        // Try to find existing user first
+        $existingUser = self::getUserById(str_pad($code, 5, '0', STR_PAD_LEFT));
+        if ($existingUser) {
+            return [
+                'id' => $existingUser['id'],
+                'name' => $existingUser['name'],
+                'description' => "type: {$type}, Session: {$existingUser['session']}, class: {$existingUser['class']}",
+                'facePayload' => [
+                    'formNo' => (int)$code,
+                    'session' => (int)$existingUser['session'],
+                    'class' => (int)$existingUser['class']
+                ]
+            ];
+        }
+
+        // Fallback to generated user
+        return [
+            'id' => str_pad($code, 5, '0', STR_PAD_LEFT),
+            'name' => 'Generated User',
+            'description' => "type: {$type}, Session: 2025, class: 5",
+            'facePayload' => [
+                'formNo' => (int)$code,
+                'session' => 2025,
+                'class' => 5
+            ]
+        ];
+    }
+
+    /**
+     * Generate API response wrapper.
+     *
+     * @param mixed $data
+     * @param string $message
+     * @param string $code
+     * @return array
+     */
+    public static function apiResponse(mixed $data, string $message = 'success', string $code = 'success'): array
+    {
+        return [
+            'code' => $code,
+            'message' => $message,
+            'result' => $data
+        ];
+    }
+}

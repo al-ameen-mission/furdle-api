@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Helpers\TokenHelper;
+use App\Helpers\MockDataHelper;
 use App\Core\Request;
 use App\Core\Response;
 
@@ -20,65 +21,11 @@ class EventController
      */
     public function index(Request $req, Response $res): void
     {
-        // Dummy events data
-        $records = [
-            [
-                'id' => '1',
-                'name' => 'Mathematics',
-                'description' => 'A branch of science concerned with the properties and relations of numbers and quantities and shapes.',
-                'facePayload' => [
-                    'type' => 'student',
-                    'branch' => 'XFM1000231',
-                    'session' => '2025',
-                    'class' => '5'
-                ]
-            ],
-            [
-                'id' => '5',
-                'name' => 'Mathematics (All Students)',
-                'description' => 'The branch of science concerned with the nature and properties of matter and energy.',
-                'facePayload' => [
-                    'type' => 'student',
-                    'session' => '2025',
-                    'class' => '5'
-                ]
-            ],
-            [
-                'id' => '2',
-                'name' => 'Admission 2025',
-                'description' => 'Information regarding the admission process for the year 2025.',
-                'facePayload' => [
-                    'type' => 'admission',
-                    'session' => '2025',
-                    'class' => '5'
-                ]
-            ],
-            [
-                'id' => '3',
-                'name' => 'Staff(Branch Only)',
-                'description' => 'Information regarding the admission process for the year 2025.',
-                'facePayload' => [
-                    'type' => 'staff',
-                    'branch' => 'XFM1000231'
-                ]
-            ],
-            [
-                'id' => '4',
-                'name' => 'Staff (Global)',
-                'description' => 'General announcements for all students and staff.',
-                'facePayload' => [
-                    'type' => 'staff'
-                ]
-            ]
-        ];
+        $events = MockDataHelper::getEvents();
 
-        $res->json([
-            'code' => 'success',
-            'message' => 'Attendance list retrieved successfully',
-            'result' => [
-                'records' => $records
-            ]
-        ]);
+        $res->json(MockDataHelper::apiResponse([
+            'records' => $events
+        ], 'Attendance list retrieved successfully'));
     }
 
     /**
@@ -102,12 +49,17 @@ class EventController
 
         $studentId = $data['payload']['studentId'];
 
-        // Dummy attendance logic (e.g., save to database)
-        // Here you would validate the event exists, student exists, etc.
+        // Check if user exists in static data
+        $user = MockDataHelper::getUserById($studentId);
 
-        $res->json([
-            'code' => 'success',
-            'message' => 'successful'
-        ]);
+        if (!$user) {
+            $res->status(404)->json([
+                'code' => 'error',
+                'message' => 'Student not found'
+            ]);
+            return;
+        }
+
+        $res->json(MockDataHelper::apiResponse(null, 'Attendance marked successfully'));
     }
 }

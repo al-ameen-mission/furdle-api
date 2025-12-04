@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Helpers\TokenHelper;
+use App\Helpers\MockDataHelper;
 use App\Core\Request;
 use App\Core\Response;
 
@@ -20,7 +21,6 @@ class UserController
      */
     public function lookup(Request $req, Response $res): void
     {
-
         $data = $req->json();
         if (!$data || !isset($data['type']) || !isset($data['code'])) {
             $res->status(400)->json([
@@ -33,24 +33,11 @@ class UserController
         $type = $data['type'];
         $code = $data['code'];
 
-        // Dummy lookup logic
-        $user = [
-            'id' => '12345',
-            'name' => 'John Doe',
-            'description' => "type: {$type}, Session: 2020, class: 5",
-            'facePayload' => [
-                'formNo' => (int)$code,
-                'session' => 2020,
-                'class' => 5
-            ]
-        ];
+        $user = MockDataHelper::generateUserLookup($type, $code);
 
-        $res->json([
-            'code' => 'success',
-            'result' => [
-                'user' => $user
-            ]
-        ]);
+        $res->json(MockDataHelper::apiResponse([
+            'user' => $user
+        ]));
     }
 
     /**
@@ -74,17 +61,14 @@ class UserController
         $code = $data['code'];
         $faceId = $data['faceId'];
 
-        // Dummy registration logic (e.g., save to database)
+        // Simulate registration with mock data
         $result = [
             'type' => $type,
             'faceId' => $faceId,
-            'code' => $code
+            'code' => $code,
+            'registered_at' => date('Y-m-d H:i:s')
         ];
 
-        $res->json([
-            'code' => 'success',
-            'message' => 'success',
-            'result' => $result
-        ]);
+        $res->json(MockDataHelper::apiResponse($result, 'User registered successfully'));
     }
-  }
+}
