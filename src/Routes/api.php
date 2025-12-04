@@ -35,5 +35,5 @@ return function ($router) {
 
         // Constants
         $router->get('/constants', 'App\Controllers\ConstantsController@index', ['App\Middlewares\AuthMiddleware']);
-    }, ['App\Middlewares\JsonMiddleware']);
+    }, ['App\Middlewares\JsonMiddleware', 'App\Middlewares\LoggingMiddleware']);
 };

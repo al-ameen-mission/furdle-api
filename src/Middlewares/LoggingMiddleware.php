@@ -14,7 +14,8 @@ class LoggingMiddleware implements Middleware
 {
     public function handle(Request $req, Response $res, callable $next): void
     {
-        error_log('Request: ' . $req->method . ' ' . $req->path);
+        $headers = json_encode($req->headers, JSON_PRETTY_PRINT);
+        error_log('Request: ' . $req->method . ' ' . $req->path . ' Headers: ' . $headers);
         $next();
     }
 }
