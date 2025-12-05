@@ -51,10 +51,14 @@ class AuthController
         'result' => [
           'tokens' => [
             'access' => $tokens['access'],
-            'refresh' => $tokens['refresh']
+            'refresh' => $tokens['refresh'],
+            "face" => $faceToken
           ],
-          'faceToken' => $faceToken,
-          'user' => $user
+          'user' => $user,
+          'permissions' => [
+            "attendance",
+            "register"
+          ]
         ]
       ]);
     } else {
@@ -112,9 +116,9 @@ class AuthController
       'result' => [
         'tokens' => [
           'access' => $tokens['access'],
-          'refresh' => $tokens['refresh']
+          'refresh' => $tokens['refresh'],
+          "face" => $faceToken
         ],
-        'faceToken' => $faceToken
       ]
     ]);
   }
@@ -147,8 +151,10 @@ class AuthController
       'message' => 'Token verified successfully',
       'result' => [
         'user' => $user,
-        'isAttendanceAllowed' => true,
-        'isRegisterAllowed' => true
+        'permissions' => [
+          "attendance",
+          "register"
+        ]
       ]
     ]);
   }
