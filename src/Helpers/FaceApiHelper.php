@@ -26,7 +26,7 @@ class FaceApiHelper
       'Content-Type: application/json',
       'Content-Length: ' . strlen($data)
     ];
-    $token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoicmVzdCIsIm9yZyI6eyJjb2RlIjoiT1JHMSJ9LCJpYXQiOjE3NjQ4NTM4MjgsImV4cCI6MTc2NDg1NzQyOH0.3b3OKeHOHg6qlbAR6j2Vdx1UhQ2PJ1pXU3E2i6DDwaA";
+    $token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoicmVzdCIsIm9yZyI6eyJjb2RlIjoiT1JHMSJ9LCJpYXQiOjE3NjQ5MTczODN9.o2HLf6_CVTGK6a4pkgcQd4rnFBoP8xfTXLj97MTuyn4";
     $headers[] = "Authorization: Bearer $token";
 
     $ch = curl_init(self::API_URL);
