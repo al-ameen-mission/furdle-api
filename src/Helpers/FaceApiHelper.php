@@ -50,7 +50,7 @@ class FaceApiHelper
         }
       }
     } catch (\Exception $e) {
-      return null;
+      throw $e;
     }
     return null;
   }
