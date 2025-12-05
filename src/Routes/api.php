@@ -24,6 +24,7 @@ return function ($router) {
 
         // Users subgroup
         $router->group('/users', function ($router) {
+            $router->post('/types', 'App\Controllers\UserController@types');
             $router->post('/lookup', 'App\Controllers\UserController@lookup');
             $router->post('/register', 'App\Controllers\UserController@register');
         }, ['App\Middlewares\AuthMiddleware']);

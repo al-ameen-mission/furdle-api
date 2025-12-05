@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controllers;
@@ -13,6 +14,17 @@ use App\Core\Response;
  */
 class UserController
 {
+    /**
+     * Get user types.
+     * @param Request $req
+     * @param Response $res
+     */
+    public function types(Request $request, Response $res): void
+    {
+        $types = MockDataHelper::getUserTypes();
+
+        $res->json(MockDataHelper::apiResponse(["types" => $types], 'User types retrieved successfully'));
+    }
     /**
      * Lookup user by type and code.
      *

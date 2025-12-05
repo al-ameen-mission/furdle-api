@@ -176,6 +176,28 @@ class MockDataHelper
     ];
 
     /**
+     * Get all user types.
+     * @return array
+     */
+    public static function getUserTypes(): array
+    {
+        return [
+            [
+                "key" => "student",
+                "label" => "Student"
+            ],
+            [
+                "key" => "staff",
+                "label" => "Staff"
+            ],
+            [
+                "key" => "admission",
+                "label" => "Admission"
+            ]
+        ];
+    }
+
+    /**
      * Get all users.
      *
      * @return array
