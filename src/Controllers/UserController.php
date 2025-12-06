@@ -8,6 +8,7 @@ use App\Helpers\TokenHelper;
 use App\Helpers\MockDataHelper;
 use App\Core\Request;
 use App\Core\Response;
+use App\Helpers\DbHelper;
 
 /**
  * User Controller for handling user-related routes.
@@ -45,7 +46,34 @@ class UserController
         $type = $data['type'];
         $code = $data['code'];
 
-        $user = MockDataHelper::getUserByCode($code, $type);
+        //for admin call database
+        $user = null;
+        if ($type == "staff") {
+            $admin = DbHelper::selectOne("SELECT * FROM admin WHERE adminId=?", [$code]);
+            if ($admin) {
+                $user = [
+                    'code' => (string) $admin['adminId'],
+                    'name' => $admin["name"],
+                    "description" => $admin["adminType"],
+                    "facePayload" => [
+                        "code" => (string) $admin["adminId"],
+                        "type" => "admin",
+                        "branch" => $admin["branch_code"],
+                    ]
+                ];
+            }
+        } else {
+            //TODO: fetch from real database
+            $user = MockDataHelper::getUserByCode($code, $type);
+            if (!$user) {
+                $res->status(404)->json([
+                    'code' => 'error',
+                    'message' => 'User not found'
+                ]);
+                return;
+            }
+        }
+
         if (!$user) {
             $res->status(404)->json([
                 'code' => 'error',
@@ -56,6 +84,6 @@ class UserController
 
         $res->json(MockDataHelper::apiResponse([
             'user' => $user
-        ]));
+        ], 'User retrieved successfully'),);
     }
 }
