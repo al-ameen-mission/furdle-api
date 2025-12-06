@@ -62,7 +62,7 @@ class LoggingMiddleware implements Middleware
         $logLines = explode("\n", $responseLog);
         foreach ($logLines as $line) {
             if (!empty(trim($line))) {
-                Logger::info($line, [], 'requests');
+                Logger::info($line, [], 'HTTP');
             }
         }
     }
