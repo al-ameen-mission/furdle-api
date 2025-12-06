@@ -27,7 +27,16 @@ class UserController
      */
     public function types(Request $request, Response $res): void
     {
-        $types = MockDataHelper::getUserTypes();
+        $types = [
+            [
+                "value" => "student",
+                "label" => "Student"
+            ],
+            [
+                "value" => "staff",
+                "label" => "Staff"
+            ]
+        ];
 
         $res->json(MockDataHelper::apiResponse(["types" => $types], 'User types retrieved successfully'));
     }
@@ -108,13 +117,6 @@ class UserController
                     ];
                 }
             }
-        } else {
-            //TODO: fetch from real database
-            $user = MockDataHelper::getUserByCode($code, $type);
-            $user["preview"] = [
-                "name" => $user["name"],
-                "code" => $code,
-            ];
         }
 
         if (!$user) {

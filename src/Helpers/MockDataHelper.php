@@ -9,59 +9,6 @@ namespace App\Helpers;
  */
 class MockDataHelper
 {
-    /** @var array */
-    private static $users = [
-        [
-            'code' => '1',
-            'name' => 'John Doe',
-            'email' => 'john.doe@example.com',
-            'type' => 'student',
-            'branch' => 'XFM1000231',
-            'session' => '2025',
-            'class' => '5',
-            'created_at' => '2024-01-15 10:30:00'
-        ],
-        [
-            'code' => '2',
-            'name' => 'Jane Smith',
-            'email' => 'jane.smith@example.com',
-            'type' => 'student',
-            'branch' => 'XFM1000231',
-            'session' => '2025',
-            'class' => '5',
-            'created_at' => '2024-01-16 11:45:00'
-        ],
-        [
-            'code' => '3',
-            'name' => 'Mike Johnson',
-            'email' => 'mike.johnson@example.com',
-            'type' => 'staff',
-            'branch' => 'XFM1000231',
-            'session' => '2025',
-            'class' => '5',
-            'created_at' => '2024-01-17 09:15:00'
-        ],
-        [
-            'code' => '4',
-            'name' => 'Sarah Wilson',
-            'email' => 'sarah.wilson@example.com',
-            'type' => 'student',
-            'branch' => 'XFM1000232',
-            'session' => '2025',
-            'class' => '6',
-            'created_at' => '2024-01-18 14:20:00'
-        ],
-        [
-            'code' => '5',
-            'name' => 'David Brown',
-            'email' => 'david.brown@example.com',
-            'type' => 'staff',
-            'branch' => 'XFM1000232',
-            'session' => '2025',
-            'class' => '6',
-            'created_at' => '2024-01-19 16:30:00'
-        ]
-    ];
 
     /** @var array */
     private static $events = [
@@ -160,65 +107,6 @@ class MockDataHelper
             'is_active' => true
         ]
     ];
-
-    /**
-     * Get all user types.
-     * @return array
-     */
-    public static function getUserTypes(): array
-    {
-        return [
-            [
-                "value" => "student",
-                "label" => "Student"
-            ],
-            [
-                "value" => "staff",
-                "label" => "Staff"
-            ],
-            [
-                "value" => "admission",
-                "label" => "Admission"
-            ]
-        ];
-    }
-
-    /**
-     * Get all users.
-     *
-     * @return array
-     */
-    public static function getUsers(): array
-    {
-        return self::$users;
-    }
-
-    /**
-     * Get user by ID.
-     *
-     * @param string $id
-     * @return array|null
-     */
-    public static function getUserByCode(string $code, $type): ?array
-    {
-        foreach (self::$users as $user) {
-            if ($user['code'] === $code && $user['type'] === $type) {
-                return [
-                    "code" => $user['code'],
-                    "name" => $user['name'],
-                    "description" => "{$user['type']} from branch {$user['branch']}, session {$user['session']}, class {$user['class']}",
-                    "facePayload" => [
-                        "code" => $user["code"],
-                        "type" => $user['type'],
-                        "branch" => $user['branch'],
-                        "session" => $user['session'],
-                        "class" => $user['class']
-                    ]
-                ];
-            }
-        }
-        return null;
-    }
 
     /**
      * Get all events.
