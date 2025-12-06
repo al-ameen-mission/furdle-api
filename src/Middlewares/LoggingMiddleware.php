@@ -43,6 +43,7 @@ class LoggingMiddleware implements Middleware
                 Logger::info($line, [], 'HTTP');
             }
         }
+        $next();
     }
     
     private function redactSensitiveHeaders(array $headers): array
