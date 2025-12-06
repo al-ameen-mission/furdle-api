@@ -71,7 +71,7 @@ class Logger
 
         // Custom line formatter for fancy box-drawing output
         $formatter = new LineFormatter(
-            "[%datetime%]: %message%\n",
+            "[%datetime%][%channel%]: %message%\n",
             'Y-m-d H:i:s',
             true, // Allow inline line breaks
             false  // Don't ignore empty context
