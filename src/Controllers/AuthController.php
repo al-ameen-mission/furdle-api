@@ -202,7 +202,7 @@ class AuthController
     //fetch user from database
     $admin = DbHelper::selectOne('SELECT * FROM admin WHERE adminId=? AND password=?', [$user->id, $password]);
     if ($admin == null) {
-      $res->status(401)->json([
+      $res->status(400)->json([
         'code' => 'error',
         'message' => 'Invalid password'
       ]);
