@@ -7,15 +7,16 @@ use Monolog\Logger as MonologLogger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Formatter\LineFormatter;
-use Monolog\Level;
 
 /**
  * Static Logger class using Monolog for application logging.
  */
 class Logger
 {
-    private static ?MonologLogger $instance = null;
-    private static array $loggers = [];
+    /** @var MonologLogger|null */
+    private static $instance = null;
+    /** @var array */
+    private static $loggers = [];
 
     /**
      * Get the default logger instance.
@@ -66,7 +67,7 @@ class Logger
         $fileHandler = new RotatingFileHandler(
             $logDir . '/app.log', // All logs go to app.log
             0, // Keep all files
-            Level::Debug
+            MonologLogger::DEBUG
         );
 
         // Custom line formatter for fancy box-drawing output
@@ -82,7 +83,7 @@ class Logger
 
         // Add console handler for development
         if (php_sapi_name() === 'cli') {
-            $consoleHandler = new StreamHandler('php://stdout', Level::Info);
+            $consoleHandler = new StreamHandler('php://stdout', MonologLogger::INFO);
             $consoleHandler->setFormatter($formatter);
             $logger->pushHandler($consoleHandler);
         }

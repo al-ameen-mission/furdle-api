@@ -21,7 +21,7 @@ class AuthMiddleware implements Middleware
     if (empty($authHeader)) {
       $authHeader = $req->header('authorization');
     }
-    if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+    if (!$authHeader || substr($authHeader, 0, 7) !== 'Bearer ') {
       $res->status(401)->send('Unauthorized');
       return;
     }

@@ -10,20 +10,24 @@ use App\Helpers\TokenHelper;
  */
 class Request
 {
-    public string $method;
-    public string $uri;
-    public string $path;
+    /** @var string */
+    public $method;
+    /** @var string */
+    public $uri;
+    /** @var string */
+    public $path;
     /** @var array<string, string> */
-    public array $query;
-    public string $body;
+    public $query;
+    /** @var string */
+    public $body;
     /** @var array<string, string> */
-    public array $headers;
+    public $headers;
     /** @var array<string, array> */
-    public array $files;
+    public $files;
     /** @var array<string, string|null> */
-    public array $params = [];
+    public $params = [];
     /** @var object|null */
-    public object|null $auth = null;
+    public $auth = null;
 
     public function __construct()
     {

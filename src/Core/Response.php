@@ -8,10 +8,12 @@ namespace App\Core;
  */
 class Response
 {
-    protected int $statusCode = 200;
+    /** @var int */
+    protected $statusCode = 200;
     /** @var array<string, string> */
-    protected array $headers = [];
-    protected bool $sent = false;
+    protected $headers = [];
+    /** @var bool */
+    protected $sent = false;
 
     /**
      * Set the HTTP status code.
@@ -43,7 +45,7 @@ class Response
      *
      * @param mixed $data
      */
-    public function json(mixed $data): void
+    public function json($data): void
     {
         $this->header('Content-Type', 'application/json');
         $this->send(json_encode($data));

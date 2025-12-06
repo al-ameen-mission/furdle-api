@@ -9,7 +9,8 @@ namespace App\Helpers;
  */
 class MockDataHelper
 {
-    private static array $users = [
+    /** @var array */
+    private static $users = [
         [
             'code' => '1',
             'name' => 'John Doe',
@@ -62,7 +63,8 @@ class MockDataHelper
         ]
     ];
 
-    private static array $events = [
+    /** @var array */
+    private static $events = [
         [
             'code' => '1',
             'name' => 'Mathematics',
@@ -159,7 +161,8 @@ class MockDataHelper
         ]
     ];
 
-    private static array $authUser = [
+    /** @var array */
+    private static $authUser = [
         'id' => '99999',
         'name' => 'Admin User',
         'email' => 'admin@example.com',
@@ -273,7 +276,7 @@ class MockDataHelper
      * @param string $code
      * @return array
      */
-    public static function apiResponse(mixed $data, string $message = 'success', string $code = 'success'): array
+    public static function apiResponse($data, string $message = 'success', string $code = 'success'): array
     {
         return [
             'code' => $code,

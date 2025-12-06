@@ -9,7 +9,8 @@ use \PDO;
  */
 class DbHelper
 {
-    private static ?PDO $pdo = null;
+    /** @var PDO|null */
+    private static $pdo = null;
 
     /**
      * Get PDO instance (singleton).
@@ -105,7 +106,7 @@ class DbHelper
      */
     public static function update(string $table, array $data, string $where, array $params = []): int
     {
-        $set = implode(', ', array_map(fn($col) => "$col = ?", array_keys($data)));
+        $set = implode(', ', array_map(function($col) { return "$col = ?"; }, array_keys($data)));
         $query = "UPDATE $table SET $set WHERE $where";
 
         $stmt = self::query($query, array_merge(array_values($data), $params));

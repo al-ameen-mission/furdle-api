@@ -18,7 +18,7 @@ class FaceApiHelper
    * @param string|null $bearerToken
    * @return array|null
    */
-  public static function generateToken(): string|null
+  public static function generateToken(): ?string
   {
     $data = json_encode(['code' => 'ORG1']);
 

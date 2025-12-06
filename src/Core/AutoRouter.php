@@ -10,16 +10,16 @@ namespace App\Core;
 class AutoRouter
 {
     /** @var array */
-    protected array $routes = [];
+    protected $routes = [];
 
     /** @var array */
-    protected array $middleware = [];
+    protected $middleware = [];
 
     /** @var string */
-    protected string $prefix = '';
+    protected $prefix = '';
 
     /** @var array */
-    protected array $groupMiddleware = [];
+    protected $groupMiddleware = [];
 
     /**
      * Add a route with optional middleware.
@@ -29,7 +29,7 @@ class AutoRouter
      * @param callable|string $handler Handler function or Controller@method string
      * @param array<callable|string> $middleware Array of middleware callables or class names
      */
-    public function add(string $method, string $path, callable|string $handler, array $middleware = []): void
+    public function add(string $method, string $path, $handler, array $middleware = []): void
     {
         $method = strtoupper($method);
         $fullPath = $this->prefix . $path;
@@ -67,7 +67,7 @@ class AutoRouter
      * @param string|callable $pathOrMiddleware Path or middleware
      * @param callable|string|null $middleware
      */
-    public function use(string|callable $pathOrMiddleware, callable|string|null $middleware = null): void
+    public function use($pathOrMiddleware, $middleware = null): void
     {
         if (is_callable($pathOrMiddleware)) {
             // Global middleware
@@ -154,7 +154,7 @@ class AutoRouter
     {
         $applicable = [];
         foreach ($this->middleware as $mw) {
-            if ($mw['path'] === null || str_starts_with($path, $mw['path'])) {
+            if ($mw['path'] === null || substr($path, 0, strlen($mw['path'])) === $mw['path']) {
                 $applicable[] = $mw['middleware'];
             }
         }
@@ -189,21 +189,21 @@ class AutoRouter
     }
 
     /**
-     * Call the route handler.
+     * Call route handler.
      *
      * @param callable|string $handler
      * @param Request $req
      * @param Response $res
      * @throws \Exception
      */
-    protected function callHandler(callable|string $handler, Request $req, Response $res): void
+    protected function callHandler($handler, Request $req, Response $res): void
     {
         if (is_callable($handler)) {
             $handler($req, $res);
             return;
         }
 
-        if (is_string($handler) && str_contains($handler, '@')) {
+        if (is_string($handler) && strpos($handler, '@') !== false) {
             [$class, $methodName] = explode('@', $handler, 2);
             if (!class_exists($class)) {
                 throw new \Exception("Controller class {$class} not found");
@@ -226,7 +226,7 @@ class AutoRouter
      * @param callable|string $handler
      * @param array<callable> $middleware
      */
-    public function get(string $path, callable|string $handler, array $middleware = []): void
+    public function get(string $path, $handler, array $middleware = []): void
     {
         $this->add('GET', $path, $handler, $middleware);
     }
@@ -238,7 +238,7 @@ class AutoRouter
      * @param callable|string $handler
      * @param array<callable> $middleware
      */
-    public function post(string $path, callable|string $handler, array $middleware = []): void
+    public function post(string $path, $handler, array $middleware = []): void
     {
         $this->add('POST', $path, $handler, $middleware);
     }
