@@ -69,12 +69,12 @@ class Logger
             Level::Debug
         );
 
-        // Custom line formatter
+        // Custom line formatter for fancy box-drawing output
         $formatter = new LineFormatter(
-            "[%datetime%] %channel%.%level_name%: %message%\n%context%\n%extra%\n",
+            "%message%\n",
             'Y-m-d H:i:s',
             true, // Allow inline line breaks
-            false  // Don't ignore empty context to show pretty formatting
+            false  // Don't ignore empty context
         );
         $fileHandler->setFormatter($formatter);
 
