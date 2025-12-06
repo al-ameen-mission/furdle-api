@@ -69,9 +69,9 @@ class Logger
             Level::Debug
         );
 
-        // Custom line formatter for fancy box-drawing output with prefix
+        // Custom line formatter for fancy box-drawing output
         $formatter = new LineFormatter(
-            "[%datetime%] %channel%.%level_name%:  %message%",
+            "[%datetime%]: %message%\n",
             'Y-m-d H:i:s',
             true, // Allow inline line breaks
             false  // Don't ignore empty context
