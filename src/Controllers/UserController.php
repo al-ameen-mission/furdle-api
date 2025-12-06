@@ -52,10 +52,10 @@ class UserController
             $admin = DbHelper::selectOne("SELECT * FROM admin WHERE adminId=?", [$code]);
             if ($admin != null) {
                 $dynamicFields = [];
-                $dynamicFields["id"] = $admin["id"];
-                $dynamicFields["name"] = $admin["name"];
-                $dynamicFields["username"] = $admin["username"];
-                $dynamicFields["branch"] = $admin["branch_code"];
+                $dynamicFields[] = ["label" => "Admin ID", "value" => (string) $admin["adminId"]];
+                $dynamicFields[] = ["label" => "Name", "value" => $admin["name"]];
+                $dynamicFields[] = ["label" => "Username", "value" => $admin["username"]];
+                $dynamicFields[] = ["label" => "Branch", "value" => $admin["branch_code"]];
                 $user = [
                     'code' => (string) $admin['adminId'],
                     'name' => $admin["name"],
