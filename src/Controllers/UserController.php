@@ -34,10 +34,10 @@ class UserController
     public function lookup(Request $req, Response $res): void
     {
         $data = $req->json();
-        if (!$data || !isset($data['type']) || !isset($data['id'])) {
+        if (!$data || !isset($data['type']) || !isset($data['code'])) {
             $res->status(400)->json([
                 'code' => 'error',
-                'message' => 'Type and id are required'
+                'message' => 'Type and code are required'
             ]);
             return;
         }
