@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -11,9 +12,13 @@ require __DIR__ . '/vendor/autoload.php';
 
 // Load environment variables
 use App\Helpers\EnvHelper;
+
 EnvHelper::load(__DIR__ . '/.env');
 
 use App\Core\AutoRouter;
+use App\Core\Request;
+use App\Core\Response;
+use App\Helpers\DbHelper;
 
 $router = new AutoRouter();
 
@@ -37,6 +42,14 @@ foreach ($routeFiles as $file) {
         }
     }
 }
+
+$router->get('/', function (Request $req, Response $res) {
+    $res->json([
+        'code' => 'success',
+        'message' => 'Welcome to Al-Ameen Face API'
+    ]);
+});
+
 
 try {
     $router->dispatch();
