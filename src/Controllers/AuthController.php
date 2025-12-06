@@ -8,6 +8,7 @@ use App\Helpers\TokenHelper;
 use App\Helpers\Logger;
 use App\Core\Request;
 use App\Core\Response;
+use App\Helpers\DbHelper;
 use App\Helpers\FaceApiHelper;
 use stdClass;
 
@@ -36,38 +37,43 @@ class AuthController
     $username = $data['username'];
     $password = $data['password'];
 
-    // Dummy validation (replace with real auth logic)
-    if ($username === 'admin' && $password === 'password') {
-      // Get static auth user data
-      $user = \App\Helpers\MockDataHelper::getAuthUser();
-
-      // Generate tokens
-      $tokens = TokenHelper::generate($user);
-
-      $faceToken = FaceApiHelper::generateToken();
-
-      $res->json([
-        'code' => 'success',
-        'message' => 'Login successful',
-        'result' => [
-          'tokens' => [
-            'access' => $tokens['access'],
-            'refresh' => $tokens['refresh'],
-            "face" => $faceToken
-          ],
-          'user' => $user,
-          'permissions' => [
-            "attendance",
-            "register"
-          ]
-        ]
-      ]);
-    } else {
+    //find admin from database
+    $admin = DbHelper::selectOne('SELECT * FROM admin WHERE username=? AND password=?', [$username, $password]);
+    if ($admin == null) {
       $res->status(401)->json([
         'code' => 'error',
         'message' => 'Invalid credentials'
       ]);
+      return;
     }
+
+    // Prepare user data for token
+    $user  = [
+      "id" => $admin['adminId'],
+      "name"=> $admin["name"],
+    ];
+
+    // Generate tokens
+    $tokens = TokenHelper::generate($user);
+
+    $faceToken = FaceApiHelper::generateToken();
+
+    $res->json([
+      'code' => 'success',
+      'message' => 'Login successful',
+      'result' => [
+        'tokens' => [
+          'access' => $tokens['access'],
+          'refresh' => $tokens['refresh'],
+          "face" => $faceToken
+        ],
+        'user' => $user,
+        'permissions' => [
+          "attendance",
+          "register"
+        ]
+      ]
+    ]);
   }
   /**
    * Generate new access token using refresh token.
