@@ -69,6 +69,7 @@ class UserController
                 $dynamicFields = [];
                 $dynamicFields[] = ["label" => "Admin ID", "value" => (string) $admin["adminId"]];
                 $dynamicFields[] = ["label" => "Name", "value" => $admin["name"]];
+                $dynamicFields[] = ["label" => "Type", "value" => $admin["adminType"] ?? "N/A"];
                 $dynamicFields[] = ["label" => "Username", "value" => $admin["username"]];
                 $dynamicFields[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
                 $user = [
