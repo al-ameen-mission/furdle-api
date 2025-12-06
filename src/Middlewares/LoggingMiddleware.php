@@ -40,28 +40,6 @@ class LoggingMiddleware implements Middleware
         $logLines = explode("\n", $requestLog);
         foreach ($logLines as $line) {
             if (!empty(trim($line))) {
-                Logger::info($line, [], 'requests');
-            }
-        }
-        
-        $startTime = microtime(true);
-        $next();
-        $endTime = microtime(true);
-        
-        $duration = round(($endTime - $startTime) * 1000, 2);
-        
-        // Create fancy response log
-        $responseLog = "┏━ Response 200 {$req->method} {$req->path} | {$duration}ms\n";
-        $responseLog .= "│ {\n";
-        $responseLog .= "│   \"status\": 200,\n";
-        $responseLog .= "│   \"durationMs\": {$duration}\n";
-        $responseLog .= "│ }\n";
-        $responseLog .= "┗━ End Response";
-        
-        // Split into multiple log entries to maintain prefix on each line
-        $logLines = explode("\n", $responseLog);
-        foreach ($logLines as $line) {
-            if (!empty(trim($line))) {
                 Logger::info($line, [], 'HTTP');
             }
         }
