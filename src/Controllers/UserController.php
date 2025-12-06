@@ -15,6 +15,11 @@ use App\Helpers\DbHelper;
  */
 class UserController
 {
+    protected function getBranchByCode(string $branchCode): ?array
+    {
+        $branch = DbHelper::selectOne("SELECT branch_code, branch_name FROM branch WHERE branch_code=? LIMIT 1", [$branchCode]);
+        return $branch ?: null;
+    }
     /**
      * Get user types.
      * @param Request $req
@@ -51,11 +56,12 @@ class UserController
         if ($type == "staff") {
             $admin = DbHelper::selectOne("SELECT name, adminId, username, branch_code FROM admin WHERE adminId=? LIMIT 1", [$code]);
             if ($admin != null) {
+                $branch = $this->getBranchByCode($admin['branch_code']);
                 $dynamicFields = [];
                 $dynamicFields[] = ["label" => "Admin ID", "value" => (string) $admin["adminId"]];
                 $dynamicFields[] = ["label" => "Name", "value" => $admin["name"]];
                 $dynamicFields[] = ["label" => "Username", "value" => $admin["username"]];
-                $dynamicFields[] = ["label" => "Branch", "value" => $admin["branch_code"]];
+                $dynamicFields[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
                 $user = [
                     'code' => (string) $admin['adminId'],
                     'name' => $admin["name"],
@@ -72,16 +78,18 @@ class UserController
             if ($student != null) {
                 $history = DbHelper::selectOne("SELECT asession, class, board FROM history WHERE studentId=? ORDER BY asession DESC LIMIT 1", [$student['studentId']]);
                 if ($history != null) {
+
                     $code = (string) $student['registerNo'];
                     $branch = (string) $student['branch'];
                     $session = (string) $history['asession'];
                     $class = (string) $history['class'];
                     $board = (string) $history['board'];
+                    $branch_details = $this->getBranchByCode($student['branch']);
                     //dynamic filed is for displaying data in future if needed
                     $dynamicFields = [];
 
                     $dynamicFields[] = ["label" => "Register no", "value" => $code];
-                    $dynamicFields[] = ["label" => "Branch", "value" => $branch];
+                    $dynamicFields[] = ["label" => "Branch", "value" => $branch_details["branch_name"] ?? $branch];
                     $dynamicFields[] = ["label" => "Session", "value" => $session];
                     $dynamicFields[] = ["label" => "Class", "value" => $class];
                     $dynamicFields[] = ["label" => "Board", "value" => $board];
@@ -104,8 +112,8 @@ class UserController
             //TODO: fetch from real database
             $user = MockDataHelper::getUserByCode($code, $type);
             $user["preview"] = [
-                "name"=> $user["name"],
-                "code"=> $code,
+                "name" => $user["name"],
+                "code" => $code,
             ];
         }
 
