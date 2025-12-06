@@ -16,7 +16,9 @@ class LoggingMiddleware implements Middleware
     public function handle(Request $req, Response $res, callable $next): void
     {
         // Log the request using our static Logger helper
-        Logger::request($req->method, $req->path, $req->headers);
+        Logger::info("HTTP Request: {$req->method} {$req->path}", [
+            'headers' => $req->headers
+        ], 'requests');
         
         $next();
     }

@@ -62,9 +62,9 @@ class Logger
             mkdir($logDir, 0755, true);
         }
 
-        // Add rotating file handler
+        // Add rotating file handler for combined log
         $fileHandler = new RotatingFileHandler(
-            $logDir . '/' . $name . '.log',
+            $logDir . '/app.log', // All logs go to app.log
             0, // Keep all files
             Level::Debug
         );
@@ -148,56 +148,5 @@ class Logger
     public static function critical(string $message, array $context = [], string $channel = 'app'): void
     {
         self::getLogger($channel)->critical($message, $context);
-    }
-
-    /**
-     * Log HTTP request.
-     *
-     * @param string $method
-     * @param string $path
-     * @param array $headers
-     * @param array $params
-     */
-    public static function request(string $method, string $path, array $headers = [], array $params = []): void
-    {
-        self::info("HTTP Request: {$method} {$path}", [
-            'headers' => $headers,
-            'params' => $params
-        ], 'requests');
-    }
-
-    /**
-     * Log webhook event.
-     *
-     * @param string $event
-     * @param array $data
-     */
-    public static function webhook(string $event, array $data = []): void
-    {
-        self::info("Webhook Event: {$event}", $data, 'webhooks');
-    }
-
-    /**
-     * Log authentication event.
-     *
-     * @param string $action
-     * @param string $user
-     * @param array $context
-     */
-    public static function auth(string $action, string $user, array $context = []): void
-    {
-        self::info("Auth {$action}: {$user}", $context, 'auth');
-    }
-
-    /**
-     * Log database operation.
-     *
-     * @param string $operation
-     * @param string $table
-     * @param array $context
-     */
-    public static function database(string $operation, string $table, array $context = []): void
-    {
-        self::debug("DB {$operation}: {$table}", $context, 'database');
     }
 }

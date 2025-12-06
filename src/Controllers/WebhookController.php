@@ -45,7 +45,7 @@ class WebhookController
     $webhookData = $data['data'];
 
         // Log webhook event
-        Logger::webhook($event, $webhookData);    // Handle different event types
+        Logger::info("Webhook Event: {$event}", $webhookData, 'webhooks');    // Handle different event types
     switch ($event) {
       case 'face.matched':
         $this->handleFaceMatched($webhookData, $res);
@@ -80,7 +80,7 @@ class WebhookController
     }
 
         // Log generic webhook
-        Logger::webhook('generic', $data);    $res->json(MockDataHelper::apiResponse([
+        Logger::info('Webhook Event: generic', $data, 'webhooks');    $res->json(MockDataHelper::apiResponse([
       'received' => true,
       'timestamp' => date('Y-m-d H:i:s'),
       'data' => $data
