@@ -161,18 +161,6 @@ class MockDataHelper
         ]
     ];
 
-    /** @var array */
-    private static $authUser = [
-        'id' => '99999',
-        'name' => 'Admin User',
-        'email' => 'admin@example.com',
-        'type' => 'admin',
-        'branch' => 'XFM1000231',
-        'session' => '2025',
-        'class' => '0',
-        'created_at' => '2024-01-01 00:00:00'
-    ];
-
     /**
      * Get all user types.
      * @return array
@@ -256,16 +244,6 @@ class MockDataHelper
             }
         }
         return null;
-    }
-
-    /**
-     * Get auth user (admin user for login).
-     *
-     * @return array
-     */
-    public static function getAuthUser(): array
-    {
-        return self::$authUser;
     }
 
     /**
