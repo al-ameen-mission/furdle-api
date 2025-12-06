@@ -217,6 +217,7 @@ class MockDataHelper
                     "name" => $user['name'],
                     "description" => "{$user['type']} from branch {$user['branch']}, session {$user['session']}, class {$user['class']}",
                     "facePayload" => [
+                        "code" => $user["code"],
                         "type" => $user['type'],
                         "branch" => $user['branch'],
                         "session" => $user['session'],
