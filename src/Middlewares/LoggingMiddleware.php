@@ -36,7 +36,13 @@ class LoggingMiddleware implements Middleware
         }
         $requestLog .= "┗─ End Request Details";
         
-        Logger::info($requestLog, [], 'requests');
+        // Split into multiple log entries to maintain prefix on each line
+        $logLines = explode("\n", $requestLog);
+        foreach ($logLines as $line) {
+            if (!empty(trim($line))) {
+                Logger::info($line, [], 'requests');
+            }
+        }
         
         $startTime = microtime(true);
         $next();
@@ -52,7 +58,13 @@ class LoggingMiddleware implements Middleware
         $responseLog .= "│ }\n";
         $responseLog .= "┗━ End Response";
         
-        Logger::info($responseLog, [], 'requests');
+        // Split into multiple log entries to maintain prefix on each line
+        $logLines = explode("\n", $responseLog);
+        foreach ($logLines as $line) {
+            if (!empty(trim($line))) {
+                Logger::info($line, [], 'requests');
+            }
+        }
     }
     
     private function redactSensitiveHeaders(array $headers): array
