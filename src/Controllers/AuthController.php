@@ -36,7 +36,7 @@ class AuthController
     $password = $data['password'];
 
     //find admin from database
-    $admin = DbHelper::selectOne('SELECT * FROM admin WHERE username=? AND password=?', [$username, $password]);
+    $admin = DbHelper::selectOne('SELECT * FROM admin WHERE username=? AND password=? LIMIT 1', [$username, $password]);
     if ($admin == null) {
       $res->status(401)->json([
         'code' => 'error',
@@ -110,7 +110,7 @@ class AuthController
       return;
     }
     // fetch user data from database or other source
-    $admin = DbHelper::selectOne('SELECT * FROM admin WHERE adminId=?', [$refreshData->user->id]);
+    $admin = DbHelper::selectOne('SELECT * FROM admin WHERE adminId=? LIMIT 1', [$refreshData->user->id]);
     if ($admin == null) {
       $res->status(401)->json([
         'code' => 'error',
@@ -151,7 +151,7 @@ class AuthController
   {
     $user = $req->auth;
     //fetch user from database
-    $admin = DbHelper::selectOne('SELECT * FROM admin WHERE adminId=?', [$user->id]);
+    $admin = DbHelper::selectOne('SELECT * FROM admin WHERE adminId=? LIMIT 1', [$user->id]);
     if ($admin == null) {
       $res->status(401)->json([
         'code' => 'error',
