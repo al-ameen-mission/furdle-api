@@ -74,6 +74,7 @@ class EventController
 
                 // view only for preview purpose in future
                 $preview = [];
+                $preview[] = ["label" => "Name", "value" => (string) $admin["name"]];
                 $preview[] = ["label" => "Username", "value" => (string) $admin["username"]];
                 $preview[] = ["label" => "Type", "value" => $admin["adminType"] ?? "N/A"];
                 $preview[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
@@ -95,7 +96,7 @@ class EventController
                     $branch_details = $this->getBranchByCode($student['branch']);
                     //dynamic filed is for displaying data in future if needed
                     $preview = [];
-
+                    $preview[] = ['label'=> 'Name','value'=> (string) $student['name']];
                     $preview[] = ["label" => "Register no", "value" => $code];
                     $preview[] = ["label" => "Branch", "value" => $branch_details["branch_name"] ?? $branch];
                     $preview[] = ["label" => "Session", "value" => $session];
