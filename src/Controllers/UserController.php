@@ -66,19 +66,24 @@ class UserController
             $admin = DbHelper::selectOne("SELECT name, adminId, username, branch_code, adminType FROM admin WHERE username=? LIMIT 1", [$code]);
             if ($admin != null) {
                 $branch = $this->getBranchByCode($admin['branch_code']);
-                $dynamicFields = [];
-                $dynamicFields[] = ["label" => "Username", "value" => (string) $admin["username"]];
-                $dynamicFields[] = ["label" => "Type", "value" => $admin["adminType"] ?? "N/A"];
-                $dynamicFields[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
+
+                // view only for preview purpose in future
+                $preview = [];
+                $preview[] = ["label" => "Username", "value" => (string) $admin["username"]];
+                $preview[] = ["label" => "Type", "value" => $admin["adminType"] ?? "N/A"];
+                $preview[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
                 $user = [
                     'code' => (string) $admin['username'],
                     'name' => $admin["name"],
-                    "facePayload" => [
+                    "query" => [
+                        "type" => "admin",
+                    ],
+                    "payload" => [
                         "code" => (string) $admin["username"],
                         "type" => "admin",
                         "branch" => $admin["branch_code"],
                     ],
-                    "preview" => $dynamicFields
+                    "preview" => $preview
                 ];
             }
         } else if ($type == "student") {
@@ -94,25 +99,28 @@ class UserController
                     $board = (string) $history['board'];
                     $branch_details = $this->getBranchByCode($student['branch']);
                     //dynamic filed is for displaying data in future if needed
-                    $dynamicFields = [];
+                    $preview = [];
 
-                    $dynamicFields[] = ["label" => "Register no", "value" => $code];
-                    $dynamicFields[] = ["label" => "Branch", "value" => $branch_details["branch_name"] ?? $branch];
-                    $dynamicFields[] = ["label" => "Session", "value" => $session];
-                    $dynamicFields[] = ["label" => "Class", "value" => $class];
-                    $dynamicFields[] = ["label" => "Board", "value" => $board];
+                    $preview[] = ["label" => "Register no", "value" => $code];
+                    $preview[] = ["label" => "Branch", "value" => $branch_details["branch_name"] ?? $branch];
+                    $preview[] = ["label" => "Session", "value" => $session];
+                    $preview[] = ["label" => "Class", "value" => $class];
+                    $preview[] = ["label" => "Board", "value" => $board];
 
                     $user = [
                         'code' => $code,
                         'name' => $student["name"],
-                        "facePayload" => [
+                        "query" => [
+                            "type" => "student",
+                        ],
+                        "payload" => [
                             "code" => $code,
                             "type" => "student",
                             "branch" => $branch,
                             "session" => $session,
                             "class" => $class
                         ],
-                        "preview" => $dynamicFields,
+                        "preview" => $preview,
                     ];
                 }
             }
