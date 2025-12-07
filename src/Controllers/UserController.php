@@ -63,19 +63,19 @@ class UserController
         //for admin call database
         $user = null;
         if ($type == "staff") {
-            $admin = DbHelper::selectOne("SELECT name, adminId, username, branch_code, adminType FROM admin WHERE adminId=? LIMIT 1", [$code]);
+            $admin = DbHelper::selectOne("SELECT name, adminId, username, branch_code, adminType FROM admin WHERE username=? LIMIT 1", [$code]);
             if ($admin != null) {
                 $branch = $this->getBranchByCode($admin['branch_code']);
                 $dynamicFields = [];
-                $dynamicFields[] = ["label" => "Admin ID", "value" => (string) $admin["adminId"]];
+                $dynamicFields[] = ["label" => "Username", "value" => (string) $admin["username"]];
                 $dynamicFields[] = ["label" => "Type", "value" => $admin["adminType"] ?? "N/A"];
                 $dynamicFields[] = ["label" => "Username", "value" => $admin["username"]];
                 $dynamicFields[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
                 $user = [
-                    'code' => (string) $admin['adminId'],
+                    'code' => (string) $admin['username'],
                     'name' => $admin["name"],
                     "facePayload" => [
-                        "code" => (string) $admin["adminId"],
+                        "code" => (string) $admin["username"],
                         "type" => "admin",
                         "branch" => $admin["branch_code"],
                     ],
