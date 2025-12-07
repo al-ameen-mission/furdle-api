@@ -14,13 +14,29 @@ class MockDataHelper
     private static $events = [
         [
             'code' => '1',
-            'name' => 'Mathematics',
+            'name' => 'Mathematics (Local Branch)',
             'description' => 'A branch of science concerned with the properties and relations of numbers and quantities and shapes.',
             'query' => [
                 'type' => 'student',
                 'branch' => 'XFM1000231',
                 'session' => '2025',
                 'class' => '5'
+            ],
+            "payload" => [
+                "event_code" => "1",
+            ],
+        ],
+        [
+            'code' => '10',
+            'name' => 'Mathematics (Global)',
+            'description' => 'A branch of science concerned with the properties and relations of numbers and quantities and shapes.',
+            'query' => [
+                'type' => 'student',
+                'session' => '2025',
+                'class' => '5'
+            ],
+            "payload" => [
+                "event_code" => "10",
             ],
         ],
         [
@@ -32,6 +48,9 @@ class MockDataHelper
                 'session' => '2025',
                 'class' => '5'
             ],
+            'payload' => [
+                "event_code" => "2",
+            ],
         ],
         [
             'code' => '3',
@@ -41,6 +60,9 @@ class MockDataHelper
                 'type' => 'admin',
                 'branch' => 'XFM1000231'
             ],
+            'payload' => [
+                "event_code" => "3",
+            ],
         ],
         [
             'code' => '4',
@@ -49,47 +71,10 @@ class MockDataHelper
             'query' => [
                 'type' => 'admin'
             ],
-        ],
-        [
-            'code' => '5',
-            'name' => 'Mathematics (All Students)',
-            'description' => 'Mathematics class for all students in session 2025.',
-            'query' => [
-                'type' => 'student',
-                'session' => '2025',
-                'class' => '5'
+            'payload' => [
+                "event_code" => "4",
             ],
         ],
-        [
-            'code' => '6',
-            'name' => 'Physics Class 6',
-            'description' => 'Physics class for grade 6 students.',
-            'query' => [
-                'type' => 'student',
-                'branch' => 'XFM1000232',
-                'session' => '2025',
-                'class' => '6'
-            ],
-        ],
-        [
-            'code' => '7',
-            'name' => 'Chemistry Lab',
-            'description' => 'Chemistry laboratory session for students.',
-            'query' => [
-                'type' => 'student',
-                'session' => '2025',
-                'class' => '5'
-            ],
-        ],
-        [
-            'code' => '8',
-            'name' => 'Staff Meeting XFM1000232',
-            'description' => 'Branch-specific staff meeting.',
-            'query' => [
-                'type' => 'admin',
-                'branch' => 'XFM1000232'
-            ],
-        ]
     ];
 
     /**
