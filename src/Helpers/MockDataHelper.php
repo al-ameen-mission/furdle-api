@@ -18,7 +18,7 @@ class MockDataHelper
             'description' => 'A branch of science concerned with the properties and relations of numbers and quantities and shapes.',
             'query' => [
                 'type' => 'student',
-                'branch' => 'XFM1000231',
+                'branch' => '010100113',
                 'session' => '2025',
                 'class' => '5'
             ],
@@ -55,10 +55,10 @@ class MockDataHelper
         [
             'code' => '3',
             'name' => 'Staff (Branch Only)',
-            'description' => 'Staff meeting for XFM1000231 branch.',
+            'description' => 'Staff meeting for 010100113 branch.',
             'query' => [
                 'type' => 'admin',
-                'branch' => 'XFM1000231'
+                'branch' => '010100113'
             ],
             'payload' => [
                 "event_code" => "3",
