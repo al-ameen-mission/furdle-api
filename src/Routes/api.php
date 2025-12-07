@@ -39,8 +39,7 @@ return function ($router) {
 
         // Webhooks (no auth required for external services)
         $router->group('/webhooks', function ($router) {
-            $router->post('/face-recognition', 'App\Controllers\WebhookController@faceRecognition');
-            $router->post('/generic', 'App\Controllers\WebhookController@generic');
+            $router->post('/event', 'App\Controllers\WebhookController@event');
         });
     }, ['App\Middlewares\JsonMiddleware', 'App\Middlewares\LoggingMiddleware']);
 };
