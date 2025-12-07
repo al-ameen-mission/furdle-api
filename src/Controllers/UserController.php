@@ -33,7 +33,7 @@ class UserController
                 "label" => "Student"
             ],
             [
-                "value" => "staff",
+                "value" => "admin",
                 "label" => "Employee"
             ]
         ];
@@ -62,7 +62,7 @@ class UserController
 
         //for admin call database
         $user = null;
-        if ($type == "staff") {
+        if ($type == "admin") {
             $admin = DbHelper::selectOne("SELECT name, adminId, username, branch_code, adminType FROM admin WHERE username=? LIMIT 1", [$code]);
             if ($admin != null) {
                 $branch = $this->getBranchByCode($admin['branch_code']);
