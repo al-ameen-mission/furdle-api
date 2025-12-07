@@ -16,7 +16,7 @@ class MockDataHelper
             'code' => '1',
             'name' => 'Mathematics',
             'description' => 'A branch of science concerned with the properties and relations of numbers and quantities and shapes.',
-            'facePayload' => [
+            'query' => [
                 'type' => 'student',
                 'branch' => 'XFM1000231',
                 'session' => '2025',
@@ -27,7 +27,7 @@ class MockDataHelper
             'code' => '2',
             'name' => 'Admission 2025',
             'description' => 'Information regarding the admission process for the year 2025.',
-            'facePayload' => [
+            'query' => [
                 'type' => 'admission',
                 'session' => '2025',
                 'class' => '5'
@@ -37,7 +37,7 @@ class MockDataHelper
             'code' => '3',
             'name' => 'Staff (Branch Only)',
             'description' => 'Staff meeting for XFM1000231 branch.',
-            'facePayload' => [
+            'query' => [
                 'type' => 'admin',
                 'branch' => 'XFM1000231'
             ],
@@ -46,7 +46,7 @@ class MockDataHelper
             'code' => '4',
             'name' => 'Staff (Global)',
             'description' => 'General announcements for all students and staff.',
-            'facePayload' => [
+            'query' => [
                 'type' => 'admin'
             ],
         ],
@@ -54,7 +54,7 @@ class MockDataHelper
             'code' => '5',
             'name' => 'Mathematics (All Students)',
             'description' => 'Mathematics class for all students in session 2025.',
-            'facePayload' => [
+            'query' => [
                 'type' => 'student',
                 'session' => '2025',
                 'class' => '5'
@@ -64,7 +64,7 @@ class MockDataHelper
             'code' => '6',
             'name' => 'Physics Class 6',
             'description' => 'Physics class for grade 6 students.',
-            'facePayload' => [
+            'query' => [
                 'type' => 'student',
                 'branch' => 'XFM1000232',
                 'session' => '2025',
@@ -75,7 +75,7 @@ class MockDataHelper
             'code' => '7',
             'name' => 'Chemistry Lab',
             'description' => 'Chemistry laboratory session for students.',
-            'facePayload' => [
+            'query' => [
                 'type' => 'student',
                 'session' => '2025',
                 'class' => '5'
@@ -85,7 +85,7 @@ class MockDataHelper
             'code' => '8',
             'name' => 'Staff Meeting XFM1000232',
             'description' => 'Branch-specific staff meeting.',
-            'facePayload' => [
+            'query' => [
                 'type' => 'admin',
                 'branch' => 'XFM1000232'
             ],
