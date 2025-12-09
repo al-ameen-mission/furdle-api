@@ -28,7 +28,43 @@ class EventController
      */
     public function index(Request $req, Response $res): void
     {
-        $events = MockDataHelper::getEvents();
+        //get list of events from database
+        $events_data = DbHelper::select("SELECT * FROM events WHERE active_status='Active' ORDER BY addedDate DESC");
+        $events = [];
+        foreach ($events_data as $event) {
+            $record = [
+                "code" => (string) $event["event_code"],
+                "name" => (string) $event["name"],
+                'description' => (string) $event["description"],
+                'query' => [
+                    'type' => (string) $event["event_type"],
+                ],
+                "payload" => [
+                    "event_code" => (string) $event["event_code"],
+                ],
+            ];
+
+            //only for student
+            if ($event["event_type"] === "student") {
+                if ($event["branch_code"] !== null && $event["branch_code"] !== "") {
+                    $record["query"]["branch"] = (string) $event["branch_code"];
+                }
+                if ($event["asession"] !== null && $event["asession"] !== "") {
+                    $record["query"]["session"] = (string) $event["asession"];
+                }
+                if ($event["class"] !== null && $event["class"] !== "") {
+                    $record["query"]["class"] = (string) $event["class"];
+                }
+            }
+
+            //only for admin
+            if ($event["event_type"] === "admin") {
+                if ($event["branch_code"] !== null && $event["branch_code"] !== "") {
+                    $record["query"]["branch"] = (string) $event["branch_code"];
+                }
+            }
+            $events[] = $record;
+        }
 
         $res->json(MockDataHelper::apiResponse([
             'records' => $events
@@ -96,7 +132,7 @@ class EventController
                     $branch_details = $this->getBranchByCode($student['branch']);
                     //dynamic filed is for displaying data in future if needed
                     $preview = [];
-                    $preview[] = ['label'=> 'Name','value'=> (string) $student['name']];
+                    $preview[] = ['label' => 'Name', 'value' => (string) $student['name']];
                     $preview[] = ["label" => "Register no", "value" => $code];
                     $preview[] = ["label" => "Branch", "value" => $branch_details["branch_name"] ?? $branch];
                     $preview[] = ["label" => "Session", "value" => $session];
