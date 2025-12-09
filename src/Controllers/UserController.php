@@ -80,8 +80,7 @@ class UserController
                     ],
                     "payload" => [
                         "code" => (string) $admin["username"],
-                        "type" => "admin",
-                        "branch" => $admin["branch_code"],
+                        "type" => "admin"
                     ],
                     "preview" => $preview
                 ];
@@ -115,10 +114,7 @@ class UserController
                         ],
                         "payload" => [
                             "code" => $code,
-                            "type" => "student",
-                            "branch" => $branch,
-                            "session" => $session,
-                            "class" => $class
+                            "type" => "student"
                         ],
                         "preview" => $preview,
                     ];
