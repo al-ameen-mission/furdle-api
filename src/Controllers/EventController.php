@@ -43,26 +43,6 @@ class EventController
                     "event_code" => (string) $event["event_code"],
                 ],
             ];
-
-            //only for student
-            if ($event["event_type"] === "student") {
-                if ($event["branch_code"] !== null && $event["branch_code"] !== "") {
-                    $record["query"]["branch"] = (string) $event["branch_code"];
-                }
-                if ($event["asession"] !== null && $event["asession"] !== "") {
-                    $record["query"]["session"] = (string) $event["asession"];
-                }
-                if ($event["class"] !== null && $event["class"] !== "") {
-                    $record["query"]["class"] = (string) $event["class"];
-                }
-            }
-
-            //only for admin
-            if ($event["event_type"] === "admin") {
-                if ($event["branch_code"] !== null && $event["branch_code"] !== "") {
-                    $record["query"]["branch"] = (string) $event["branch_code"];
-                }
-            }
             $events[] = $record;
         }
 
