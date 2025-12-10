@@ -9,11 +9,12 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libcurl4-openssl-dev \
     zip \
     unzip \
     nginx \
     supervisor \
-    && docker-php-ext-install mbstring exif pcntl bcmath gd zip
+    && docker-php-ext-install mbstring exif pcntl bcmath gd zip curl
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
