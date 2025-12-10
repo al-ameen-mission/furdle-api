@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Core;
@@ -78,5 +79,39 @@ class Response
     public function redirect(string $url, int $status = 302): void
     {
         $this->status($status)->header('Location', $url)->send('');
+    }
+
+    /**
+     * Render a view file with variables.
+     *
+     * @param string $view The view file name (e.g., 'user/profile' will look for src/Views/user/profile.php)
+     * @param array $data Variables to expose to the view
+     */
+    public function render(string $view, array $data = []): void
+    {
+        $viewPath = __DIR__ . '/../Views/' . $view . '.php';
+
+        if (!file_exists($viewPath)) {
+            $this->status(500)->send("View not found: $view");
+            return;
+        }
+
+        // Set Content-Type to text/html if not already set
+        $this->header('Content-Type', 'text/html; charset=UTF-8');
+
+        // Extract variables to make them available in the view
+        extract($data);
+
+        // Start output buffering
+        ob_start();
+
+        // Include the view file
+        include $viewPath;
+
+        // Get the buffered content
+        $content = ob_get_clean();
+
+        // Send the rendered content
+        $this->send($content);
     }
 }

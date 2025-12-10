@@ -55,7 +55,9 @@ class ThirdPartyController
         $res->status(404)->json(['error' => 'Student not found']);
         return;
       }
-      $res->json(['student' => $student]);
+      $res->render('third-party/register', [
+        'student' => $student
+      ]);
     } catch (\Exception $e) {
       $res->status(500)->json(['error' => 'Failed to fetch student data', 'details' => $e->getMessage()]);
     }
