@@ -39,13 +39,11 @@ class ThirdPartyController
         'SELECT * FROM admission_exam_session WHERE FIND_IN_SET(?, control_session_id)',
         [$control_session]
       );
-      var_dump($sessionDetail);
-      print $control_session;
-      exit;
       if ($sessionDetail == null) {
         $res->status(404)->json(['error' => 'Invalid session']);
         return;
       }
+      $admission_exam_session_id = $sessionDetail['admission_exam_session_id'];
       $response = $client->get(
         'https://aamsystem.in/alameen2023/import_student_api/api/admission.php',
         [
@@ -67,29 +65,26 @@ class ThirdPartyController
         $res->status(404)->json(['error' => 'Student not found']);
         return;
       }
+
+      $faceToken = FaceApiHelper::generateToken();
       $res->render('third-party/register', [
-        'student' => $student
+        'student' => $student,
+        "admission_exam_session_id" => $admission_exam_session_id,
+        "url" => 'https://face.nafish.me/api/edge/face/register',
+        "token" => $faceToken,
+        "query" => [
+          "type" => "admission",
+          "admission_exam_session_id" => $admission_exam_session_id,
+        ],
+        "payload" => [
+          "code" => (string) $student["form_no"],
+          "type" => "admission",
+          "admission_exam_session_id" => $admission_exam_session_id,
+        ],
+
       ]);
     } catch (\Exception $e) {
       $res->status(500)->json(['error' => 'Failed to fetch student data', 'details' => $e->getMessage()]);
     }
-  }
-
-  /**
-   * Handle register face.
-   *
-   * @param Request $req
-   * @param Response $res
-   */
-
-  public function register(Request $req, Response $res): void
-  {
-    $data = $req->body;
-    $faceToken = FaceApiHelper::generateToken();
-    $res->status(200)->json([
-      'code' => 'success',
-      'message' => 'Face registered successfully',
-      'face_token' => $faceToken
-    ]);
   }
 }

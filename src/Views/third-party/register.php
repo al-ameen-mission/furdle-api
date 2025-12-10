@@ -117,6 +117,21 @@
       }
     }
 
+    //dataURL to File conversion
+    function dataURLtoFile(dataurl, filename) {
+      var arr = dataurl.split(','),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new File([u8arr], filename, {
+        type: mime
+      });
+    }
+
     // Listen for messages from iframe
     window.addEventListener('message', function(event) {
       const d = event.data || {};
@@ -128,31 +143,36 @@
       }
 
       if (d.type === 'face-confirmed' && d.payload && d.payload.image) {
-        // Auto-submit the form when face is captured
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/third-party/register';
+        //convert data url to file
+        const imageDataUrl = d.payload.image;
+        const file = dataURLtoFile(imageDataUrl, 'image.jpg');
+        // Submit face data via AJAX
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('payload', JSON.stringify(<?php echo json_encode($payload); ?>));
+        formData.append('query', JSON.stringify(<?php echo json_encode($query); ?>));
 
-        const studentIdInput = document.createElement('input');
-        studentIdInput.type = 'hidden';
-        studentIdInput.name = 'student_id';
-        studentIdInput.value = '<?php echo htmlspecialchars($student['id'] ?? ''); ?>';
-        form.appendChild(studentIdInput);
-
-        const formNoInput = document.createElement('input');
-        formNoInput.type = 'hidden';
-        formNoInput.name = 'form_no';
-        formNoInput.value = '<?php echo htmlspecialchars($student['form_no'] ?? ''); ?>';
-        form.appendChild(formNoInput);
-
-        const faceDataInput = document.createElement('input');
-        faceDataInput.type = 'hidden';
-        faceDataInput.name = 'face_data';
-        faceDataInput.value = d.payload.image;
-        form.appendChild(faceDataInput);
-
-        document.body.appendChild(form);
-        form.submit();
+        fetch('<?php echo $url; ?>', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer <?php echo $token; ?>'
+            },
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Handle success - show success message or redirect
+              alert('Face registered successfully!');
+            } else {
+              // Handle error
+              alert('Registration failed: ' + (data.message || 'Unknown error'));
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred during registration');
+          });
         return;
       }
     });
