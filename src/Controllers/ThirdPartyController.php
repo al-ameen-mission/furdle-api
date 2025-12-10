@@ -34,6 +34,18 @@ class ThirdPartyController
     $client->setVerifySSL(false);
 
     try {
+      //find session id in database
+      $sessionDetail = DbHelper::selectOne(
+        'SELECT * FROM admission_exam_session WHERE FIND_IN_SET(?, control_session_id)',
+        [$control_session]
+      );
+      var_dump($sessionDetail);
+      print $control_session;
+      exit;
+      if ($sessionDetail == null) {
+        $res->status(404)->json(['error' => 'Invalid session']);
+        return;
+      }
       $response = $client->get(
         'https://aamsystem.in/alameen2023/import_student_api/api/admission.php',
         [
@@ -51,7 +63,7 @@ class ThirdPartyController
       $decoded = @$client->decodeJson($response);
       $result = @$decoded['data'];
       $student = @$result[0];
-      if( !$student ) {
+      if (!$student) {
         $res->status(404)->json(['error' => 'Student not found']);
         return;
       }
