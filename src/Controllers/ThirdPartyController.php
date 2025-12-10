@@ -74,5 +74,10 @@ class ThirdPartyController
   {
     $data = $req->body;
     $faceToken = FaceApiHelper::generateToken();
+    $res->status(200)->json([
+      'code' => 'success',
+      'message' => 'Face registered successfully',
+      'face_token' => $faceToken
+    ]);
   }
 }

@@ -5,6 +5,7 @@ return function ($router) {
     $router->group('', function ($router) {
         $router->group('/third-party', function ($router) {
             $router->get('/register', 'App\Controllers\ThirdPartyController@render');
+            $router->post('/register', 'App\Controllers\ThirdPartyController@register');
         });
     }, []);
 };
