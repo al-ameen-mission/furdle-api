@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Registration</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+      <link rel="stylesheet" type="text/css" href="/public/styles/main.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
@@ -50,36 +50,6 @@
                                 Class: <?php echo htmlspecialchars($student['class_name'] ?? 'N/A'); ?>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Instructions Card -->
-            <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-4">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <i data-lucide="alert-circle" class="w-5 h-5 text-amber-600 mt-0.5"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h4 class="text-sm font-medium text-amber-900">Important Instructions</h4>
-                        <ul class="mt-2 text-sm text-amber-800 space-y-1">
-                            <li class="flex items-start">
-                                <span class="inline-block w-1.5 h-1.5 bg-amber-600 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                                Position your face within the guide circle
-                            </li>
-                            <li class="flex items-start">
-                                <span class="inline-block w-1.5 h-1.5 bg-amber-600 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                                Ensure good lighting on your face
-                            </li>
-                            <li class="flex items-start">
-                                <span class="inline-block w-1.5 h-1.5 bg-amber-600 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                                Keep your face steady for 1-2 seconds
-                            </li>
-                            <li class="flex items-start">
-                                <span class="inline-block w-1.5 h-1.5 bg-amber-600 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                                Look directly at the camera
-                            </li>
-                        </ul>
                     </div>
                 </div>
             </div>
