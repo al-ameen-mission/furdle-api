@@ -34,7 +34,7 @@ class FaceApiHelper
    *
    * @param string $code
    * @param string|null $bearerToken
-   * @return array|null
+   * @return string|null
    */
   public static function generateToken(): ?string
   {
