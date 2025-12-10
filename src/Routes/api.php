@@ -42,9 +42,5 @@ return function ($router) {
         $router->group('/webhooks', function ($router) {
             $router->post('/event', 'App\Controllers\WebhookController@event');
         });
-
-        $router->group('/third-party', function ($router) {
-            $router->get('/register', 'App\Controllers\ThirdPartyController@render');
-        });
     }, ['App\Middlewares\JsonMiddleware', 'App\Middlewares\LoggingMiddleware']);
 };

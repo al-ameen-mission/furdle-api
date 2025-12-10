@@ -55,7 +55,11 @@ class AutoRouter
         $params = [];
         $regex = preg_replace_callback('#\{([^}]+)\}#', function ($matches) use (&$params) {
             $params[] = $matches[1];
-            return '([^/]+)';
+            // Support wildcard parameter with * suffix (e.g., {path*})
+            if (substr($matches[1], -1) === '*') {
+                return '(.+)';  // Match any character including slashes
+            }
+            return '([^/]+)';  // Match any character except slash
         }, $path);
         $pattern = '#^' . $regex . '$#';
         return ['pattern' => $pattern, 'params' => $params];

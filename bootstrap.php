@@ -18,13 +18,13 @@ EnvHelper::load(__DIR__ . '/.env');
 use App\Core\AutoRouter;
 use App\Core\Request;
 use App\Core\Response;
-use App\Helpers\DbHelper;
 
 $router = new AutoRouter();
 
 // Manually load specified route files
 $routeFiles = [
     __DIR__ . '/src/Routes/api.php',
+    __DIR__ . '/src/Routes/web.php',
 ];
 
 foreach ($routeFiles as $file) {
@@ -50,6 +50,35 @@ $router->get('/', function (Request $req, Response $res) {
     ]);
 });
 
+// Static file serving for public folder
+$router->get('/public/{path*}', function (Request $req, Response $res) {
+    $path = isset($req->params['path*']) ? $req->params['path*'] : '';
+    
+    if (empty($path)) {
+        $res->status(404)->json(['error' => 'File not found']);
+        return;
+    }
+    
+    $file = __DIR__ . '/public/' . $path;
+    
+    // Security: prevent directory traversal
+    $realPath = realpath($file);
+    $publicDir = realpath(__DIR__ . '/public');
+    
+    if ($realPath === false || strpos($realPath, $publicDir) !== 0) {
+        $res->status(403)->json(['error' => 'Access denied']);
+        return;
+    }
+    
+    if (file_exists($file) && is_file($file)) {
+        $mime = mime_content_type($file);
+        $res->header('Content-Type', $mime);
+        readfile($file);
+        exit;
+    } else {
+        $res->status(404)->json(['error' => 'File not found']);
+    }
+});
 
 try {
     $router->dispatch();
