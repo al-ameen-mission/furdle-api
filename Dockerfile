@@ -27,20 +27,11 @@ COPY composer.json composer.lock ./
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Copy application code
-COPY . .
-
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/sites-available/default
 
-# Create nginx and application log directories
-RUN mkdir -p /var/log/nginx /var/www/logs
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www \
-    && chmod +x /var/www/bootstrap.php \
-    && chmod -R 777 /var/www/logs
+# Create nginx log directory
+RUN mkdir -p /var/log/nginx
 
 # Create supervisor configuration
 RUN echo '[supervisord]\n\
