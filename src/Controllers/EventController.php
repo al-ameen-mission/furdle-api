@@ -52,6 +52,7 @@ class EventController
             'description' => 'For marking attendance manually for admission exam candidates',
             'query' => [
                 'admission_exam_session_id' => '1',
+                "type" => "admission",
             ],
             "payload" => [
                 "event_code" => "admission:1",
