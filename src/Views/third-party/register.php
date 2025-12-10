@@ -42,7 +42,7 @@
             </div>
             
             <!-- Capture Frame -->
-            <div class="">
+            <div class="py-10">
                 <iframe id="captureFrame"
                         src="https://face.nafish.me/frame/capture" 
                         class="w-full border-0" allow="camera; microphone; autoplay"></iframe>
