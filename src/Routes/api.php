@@ -15,8 +15,8 @@ return function ($router) {
         // Auth subgroup
         $router->group('/auth', function ($router) {
             $router->post('/login', 'App\Controllers\AuthController@login');
-            $router->post('/token','App\Controllers\AuthController@token');
-            
+            $router->post('/token', 'App\Controllers\AuthController@token');
+
             // add auth middleware 
             $router->get('/verify', 'App\Controllers\AuthController@verify', ["App\Middlewares\AuthMiddleware"]);
             $router->post('/validate-password', 'App\Controllers\AuthController@validatePassword', ['App\Middlewares\AuthMiddleware']);
@@ -42,5 +42,8 @@ return function ($router) {
         $router->group('/webhooks', function ($router) {
             $router->post('/event', 'App\Controllers\WebhookController@event');
         });
-    }, ['App\Middlewares\JsonMiddleware', 'App\Middlewares\LoggingMiddleware']);
+        $router->group('/third-party', function ($router) {
+            $router->post('', 'App\Controllers\ThirdPartyController@index');
+        });
+    }, ['App\Middlewares\JsonMiddleware', 'App\Middlewares\LoggingMiddleware', 'App\Middlewares\CorsMiddleware']);
 };

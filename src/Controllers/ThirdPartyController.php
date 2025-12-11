@@ -16,18 +16,22 @@ use App\Helpers\FaceApiHelper;
  */
 class ThirdPartyController
 {
+  public function lookup(Request $request): void
+  {
+    //
+  }
   /**
    * Handle render ui.
    *
    * @param Request $req
    * @param Response $res
    */
-  public function render(Request $req, Response $res): void
+  public function index(Request $req, Response $res): void
   {
-    $data = $req->body;
+    $body = $req->json();
 
-    $form_no = $req->query('form_no') ?? '';
-    $control_session = $req->query('session') ?? '';
+    $form_no = $body['form_no'];
+    $control_session = $body['session'];
 
     // Make HTTP request to get student data using HttpClient
     $client = new HttpClient();
@@ -65,63 +69,29 @@ class ThirdPartyController
         $res->status(404)->json(['error' => 'Student not found']);
         return;
       }
-      //search if face is already registered
-      $results = FaceApiHelper::searchFaces([
-        "type" => "admission",
-        "admission_exam_session_id" => (string) $admission_exam_session_id,
-        "code" => (string) $student["form_no"],
-      ]);
-
-      if (!empty($results)) {
-        $res->render('third-party/manage', [
-          'student' => $student,
-          'results' => $results,
-          'admission_exam_session_id' => $admission_exam_session_id,
-        ]);
-        return;
-      }
 
       $faceToken = FaceApiHelper::generateToken();
-      $res->render('third-party/register', [
-        'student' => $student,
-        "admission_exam_session_id" => $admission_exam_session_id,
-        "url" => 'https://face.nafish.me/api/edge/face/register',
-        "token" => $faceToken,
-        "query" => [
-          "type" => "admission",
-          "admission_exam_session_id" => (string) $admission_exam_session_id,
-        ],
-        "payload" => [
-          "code" => (string) $student["form_no"],
-          "type" => "admission",
-          "admission_exam_session_id" => (string) $admission_exam_session_id,
-        ],
+      $res->status(200)->json([
+        'code' => 'success',
+        'message' => 'Student data retrieved successfully',
+        'result' => [
+          'student' => $student,
+          "admission_exam_session_id" => $admission_exam_session_id,
+          "url" => 'https://face.nafish.me/api/edge',
+          "token" => $faceToken,
+          "query" => [
+            "type" => "admission",
+            "admission_exam_session_id" => (string) $admission_exam_session_id,
+          ],
+          "payload" => [
+            "code" => (string) $student["form_no"],
+            "type" => "admission",
+            "admission_exam_session_id" => (string) $admission_exam_session_id,
+          ],
+        ]
       ]);
     } catch (\Exception $e) {
       $res->status(500)->json(['error' => 'Failed to fetch student data', 'details' => $e->getMessage()]);
-    }
-  }
-
-  /**
-   * Handle delete face.
-   *
-   * @param Request $req
-   * @param Response $res
-   */
-  public function delete(Request $req, Response $res): void
-  {
-    $faceId = $req->param('faceId');
-
-    if (empty($faceId)) {
-      $res->status(400)->json(['error' => 'Face ID required']);
-      return;
-    }
-
-    $success = FaceApiHelper::deleteFace($faceId);
-    if ($success) {
-      $res->json(['message' => 'Face deleted successfully']);
-    } else {
-      $res->status(500)->json(['error' => 'Failed to delete face']);
     }
   }
 }
