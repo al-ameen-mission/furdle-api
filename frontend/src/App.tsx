@@ -1,16 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useMutation, useQuery } from "@tanstack/react-query"
-import React, { useState, useEffect, useRef } from "react"
-import { ApiUtils } from "./utils/api"
-import type { ThirdPartyLookupApiResponse } from "./@types/types"
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect, useRef } from 'react';
+import { ApiUtils } from './utils/api';
+import type { ThirdPartyLookupApiResponse } from './@types/types';
 
 function App() {
-  const query = new URLSearchParams(window.location.search)
-  const formNo: string = query.get('form_no') || ''
-  const session: string = query.get('session') || ''
+  const query = new URLSearchParams(window.location.search);
+  const formNo: string = query.get('form_no') || '';
+  const session: string = query.get('session') || '';
+  const queryClient = useQueryClient();
 
   const dataURLtoFile = (dataurl: string, filename: string): File => {
-    const arr = dataurl.split(',')
+    const arr = dataurl.split(',');
     const mime = arr[0].match(/:(.*?);/)![1];
     const bstr = atob(arr[1]);
     let n = bstr.length;
@@ -18,9 +18,7 @@ function App() {
     while (n--) {
       u8arr[n] = bstr.charCodeAt(n);
     }
-    return new File([u8arr], filename, {
-      type: mime
-    });
+    return new File([u8arr], filename, { type: mime });
   };
 
   const [iframeHeight, setIframeHeight] = useState('400px');
@@ -32,7 +30,7 @@ function App() {
       const res = await fetch(ApiUtils.getApiUrl('/api/third-party'), {
         method: 'POST',
         body: JSON.stringify({ form_no: formNo, session }),
-      })
+      });
       return res.json() as Promise<ThirdPartyLookupApiResponse>;
     },
   });
@@ -40,17 +38,22 @@ function App() {
   const faceQuery = useQuery({
     queryKey: ['faces', lookupData],
     queryFn: async () => {
-      const baseUrl = lookupData?.result.url || ''
-      const url = new URL(baseUrl)
-      url.pathname += '/faces/search'
+      const baseUrl = lookupData?.result.url || '';
+      const url = new URL(baseUrl);
+      url.pathname += '/faces/search';
       const res = await fetch(url.toString(), {
         method: 'POST',
-        body: JSON.stringify({ query: { ...(lookupData?.result.query || {}), code: lookupData?.result.student.form_no } }),
+        body: JSON.stringify({
+          query: {
+            ...(lookupData?.result.query || {}),
+            code: lookupData?.result.student.form_no,
+          },
+        }),
         headers: {
           'Authorization': `Bearer ${lookupData?.result.token || ''}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      })
+      });
       return res.json();
     },
     enabled: lookupData !== undefined,
@@ -58,39 +61,42 @@ function App() {
 
   const deleteMutation = useMutation({
     mutationFn: async (faceId: number) => {
-      const baseUrl = lookupData?.result.url || ''
-      const url = new URL(baseUrl)
-      url.pathname += `/face/${faceId}`
+      const baseUrl = lookupData?.result.url || '';
+      const url = new URL(baseUrl);
+      url.pathname += `/face/${faceId}`;
       const res = await fetch(url.toString(), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${lookupData?.result.token || ''}`,
         },
-      })
+      });
       return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['faces', lookupData] });
     },
   });
 
   const registerMutation = useMutation({
     mutationFn: async (image: string) => {
+      const baseUrl = lookupData?.result.url || '';
+      const url = new URL(baseUrl);
+      url.pathname += '/face/register';
 
-      const baseUrl = lookupData?.result.url || ''
-      const url = new URL(baseUrl)
-      url.pathname += `/face/register`
-
-      // prepare payload
-      const formdata = new FormData();
+      // Prepare payload
+      const formData = new FormData();
       const file = dataURLtoFile(image, 'face.jpg');
-      formdata.append('image', file);
-      formdata.append('payload', JSON.stringify(lookupData?.result.payload || {}));
-      formdata.append('query', JSON.stringify(lookupData?.result.query || {}));
+      formData.append('image', file);
+      formData.append('payload', JSON.stringify(lookupData?.result.payload || {}));
+      formData.append('query', JSON.stringify(lookupData?.result.query || {}));
 
       const res = await fetch(url.toString(), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${lookupData?.result.token || ''}`,
         },
-      })
+        body: formData,
+      });
       return res.json();
     },
   });
@@ -112,7 +118,7 @@ function App() {
 
 
   if (!lookupData) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   if (registerMutation.isSuccess) {
@@ -205,7 +211,8 @@ function App() {
             </button>
 
           </div>
-        ) : <React.Fragment>
+        ) : (
+          <>
 
           <div className="bg-white border-2 border-dashed border-gray-300 rounded-xl py-4">
             <div className="bg-white overflow-hidden">
@@ -248,7 +255,8 @@ function App() {
               </li>
             </ul>
           </div>
-        </React.Fragment>}
+          </>
+        )}
 
 
 
