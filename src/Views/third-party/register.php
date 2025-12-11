@@ -16,7 +16,7 @@
 
 <body class="bg-linear-to-br from-blue-50 to-indigo-100 min-h-screen">
   <?php if (isset($student) && is_array($student)): ?>
-    <div class="min-h-screen max-w-md mx-auto bg-white shadow-xl">
+    <div id="registrationContainer" class="min-h-screen max-w-md mx-auto bg-white shadow-xl">
       <!-- Header -->
       <div class="bg-indigo-600 text-white px-4 py-5 relative overflow-hidden">
         <div class="absolute inset-0 bg-black opacity-10"></div>
@@ -117,6 +117,24 @@
     </div>
   <?php endif; ?>
 
+  <div id="successMessage" class="hidden min-h-screen max-w-md mx-auto bg-white flex items-center justify-center p-6">
+    <div class="text-center">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="check-circle" class="w-8 h-8 text-green-600"></i>
+      </div>
+      <h2 class="text-xl font-semibold text-green-600 mb-2">Registration Successful!</h2>
+      <p class="text-gray-600">Your face has been registered successfully.</p>
+    </div>
+  </div>
+
+  <div id="loadingMessage" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+      <h2 class="text-lg font-semibold text-gray-900">Registering...</h2>
+      <p class="text-gray-600">Please wait while we process your face data.</p>
+    </div>
+  </div>
+
   <script>
     // Initialize Lucide icons
     lucide.createIcons();
@@ -176,6 +194,8 @@
       }
 
       if (d.type === 'face-confirmed' && d.payload && d.payload.image) {
+        // Show loading
+        document.getElementById('loadingMessage').classList.remove('hidden');
         //convert data url to file
         const imageDataUrl = d.payload.image;
         const file = dataURLtoFile(imageDataUrl, 'image.jpg');
@@ -194,13 +214,17 @@
             body: formData
           });
           if (response.ok) {
-            alert('Face data submitted successfully!');
-            // Optionally redirect or update UI
+            document.getElementById('loadingMessage').classList.add('hidden');
+            document.getElementById('registrationContainer').style.display = 'none';
+            document.getElementById('successMessage').classList.remove('hidden');
+            lucide.createIcons();
           } else {
+            document.getElementById('loadingMessage').classList.add('hidden');
             const result = await response.json();
             alert('Failed to submit face data: ' + (result?.message || response.statusText));
           }
         } catch (e) {
+          document.getElementById('loadingMessage').classList.add('hidden');
           alert('Failed to submit face data. Please try again.');
           return;
         }

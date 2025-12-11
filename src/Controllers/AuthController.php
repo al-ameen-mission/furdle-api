@@ -38,7 +38,7 @@ class AuthController
     //find admin from database
     $admin = DbHelper::selectOne('SELECT * FROM admin WHERE username=? AND password=? LIMIT 1', [$username, $password]);
     if ($admin == null) {
-      $res->status(401)->json([
+      $res->status(400)->json([
         'code' => 'error',
         'message' => 'Invalid credentials'
       ]);
