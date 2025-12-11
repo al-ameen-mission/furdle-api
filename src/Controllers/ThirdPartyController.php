@@ -65,6 +65,21 @@ class ThirdPartyController
         $res->status(404)->json(['error' => 'Student not found']);
         return;
       }
+      //search if face is already registered
+      $results = FaceApiHelper::searchFaces([
+        "type" => "admission",
+        "admission_exam_session_id" => (string) $admission_exam_session_id,
+        "code" => (string) $student["form_no"],
+      ]);
+
+      if (!empty($results)) {
+        $res->render('third-party/manage', [
+          'student' => $student,
+          'results' => $results,
+          'admission_exam_session_id' => $admission_exam_session_id,
+        ]);
+        return;
+      }
 
       $faceToken = FaceApiHelper::generateToken();
       $res->render('third-party/register', [
@@ -81,10 +96,32 @@ class ThirdPartyController
           "type" => "admission",
           "admission_exam_session_id" => (string) $admission_exam_session_id,
         ],
-
       ]);
     } catch (\Exception $e) {
       $res->status(500)->json(['error' => 'Failed to fetch student data', 'details' => $e->getMessage()]);
+    }
+  }
+
+  /**
+   * Handle delete face.
+   *
+   * @param Request $req
+   * @param Response $res
+   */
+  public function delete(Request $req, Response $res): void
+  {
+    $faceId = $req->param('faceId');
+
+    if (empty($faceId)) {
+      $res->status(400)->json(['error' => 'Face ID required']);
+      return;
+    }
+
+    $success = FaceApiHelper::deleteFace($faceId);
+    if ($success) {
+      $res->json(['message' => 'Face deleted successfully']);
+    } else {
+      $res->status(500)->json(['error' => 'Failed to delete face']);
     }
   }
 }

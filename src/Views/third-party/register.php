@@ -32,7 +32,7 @@
       <!-- Content -->
       <div class="px-4 py-6 space-y-6">
         <!-- Student Profile Card -->
-        <div class="bg-white border border-gray-200 rounded-xl px-4 py-4 shadow-sm">
+        <div class="bg-white border border-gray-200 rounded-xl px-4 py-4">
           <div class="flex items-center space-x-4">
             <div class="relative">
               <img src="<?php echo htmlspecialchars($student['image'] ?? '/public/default-avatar.png'); ?>"
@@ -128,7 +128,7 @@
   </div>
 
   <div id="loadingMessage" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 text-center">
+    <div class="bg-white rounded-lg p-6 text-center mx-5">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
       <h2 class="text-lg font-semibold text-gray-900">Registering...</h2>
       <p class="text-gray-600">Please wait while we process your face data.</p>

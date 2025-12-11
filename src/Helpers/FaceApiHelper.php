@@ -14,9 +14,9 @@ class FaceApiHelper
    *
    * @return string
    */
-  private static function getApiUrl(): string
+  private static function getApiUrl(string $path): string
   {
-    return getenv('FACE_API_URL') ?: 'https://face.nafish.me/api/rest/client-token';
+    return (getenv('FACE_API_URL') ?: 'https://face.nafish.me/api') . $path;
   }
 
   /**
@@ -43,7 +43,7 @@ class FaceApiHelper
         'Authorization' => 'Bearer ' . self::getApiToken()
       ]);
 
-      $response = $client->post(self::getApiUrl(), ['code' => 'ORG1']);
+      $response = $client->post(self::getApiUrl("/rest/client-token"), ['code' => 'ORG1']);
       $decoded = $client->decodeJson($response);
 
       if ($response['status'] === 200) {
@@ -55,5 +55,43 @@ class FaceApiHelper
       throw $e;
     }
     return null;
+  }
+
+  public static function searchFaces(array $query): array
+  {
+    try {
+      $client = new \App\Core\HttpClient();
+      $client->setHeaders([
+        'Content-Type' => 'application/json',
+        'Authorization' => 'Bearer ' . self::getApiToken(),
+      ]);
+      $url = self::getApiUrl('/rest/faces/search');
+      $response = $client->post($url, ["query" => $query]);
+      $decoded = $client->decodeJson($response);
+      if ($response['status'] === 200) {
+        if (isset($decoded['result']['records'])) {
+          return $decoded['result']["records"];
+        }
+      }
+    } catch (\Exception $e) {
+      throw $e;
+    }
+    return [];
+  }
+
+  public static function deleteFace(string $faceId): bool
+  {
+    try {
+      $client = new \App\Core\HttpClient();
+      $client->setHeaders([
+        'Content-Type' => 'application/json',
+        'Authorization' => 'Bearer ' . self::getApiToken(),
+      ]);
+      $url = self::getApiUrl('/rest/faces/' . $faceId);
+      $response = $client->delete($url, []);
+      return $response['status'] === 200;
+    } catch (\Exception $e) {
+      return false;
+    }
   }
 }
