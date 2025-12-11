@@ -11,8 +11,7 @@ class ApiService {
 
   constructor() {
     this.baseApi = axios.create({
-      baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
-      // Don't set Content-Type by default to avoid triggering preflight requests
+      baseURL: import.meta.env.VITE_API_URL
     });
   }
 
@@ -82,10 +81,3 @@ class ApiService {
 
 // Create a singleton instance
 export const apiService = new ApiService();
-
-// Keep the existing ApiUtils for backward compatibility
-export class ApiUtils {
-  static getApiUrl(path: string): string {
-    return (import.meta.env.VITE_API_URL || 'http://localhost:8080') + path;
-  }
-}
