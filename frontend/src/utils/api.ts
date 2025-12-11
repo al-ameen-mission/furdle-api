@@ -23,6 +23,7 @@ class ApiService {
         baseURL: baseUrl,
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
     } else {
@@ -34,25 +35,17 @@ class ApiService {
 
   // Third-party lookup
   async thirdPartyLookup(formNo: string, session: string): Promise<ThirdPartyLookupApiResponse> {
-    const response = await this.baseApi.post('/api/third-party', {
+    const response = await this.baseApi.post('/api/third-party', JSON.stringify({
       form_no: formNo,
       session,
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    }));
     return response.data;
   }
 
   // Search for existing faces
   async searchFaces(baseUrl: string, token: string, query: Record<string, unknown>): Promise<FaceSearchResponse> {
     const faceApi = this.initFaceApi(baseUrl, token);
-    const response = await faceApi.post('/faces/search', { query }, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await faceApi.post('/faces/search', { query });
     return response.data;
   }
 

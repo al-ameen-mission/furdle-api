@@ -24,56 +24,56 @@ function App() {
   const [iframeHeight, setIframeHeight] = useState('400px');
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const { data: lookupData } = useQuery({
+  const lookupQuery = useQuery({
     queryKey: ['third-party-lookup', formNo, session],
     queryFn: () => apiService.thirdPartyLookup(formNo, session),
     enabled: !!formNo && !!session,
   });
 
   const faceQuery = useQuery({
-    queryKey: ['faces', lookupData?.result.student.form_no],
+    queryKey: ['faces', lookupQuery.data?.result.student.form_no],
     queryFn: () => {
-      if (!lookupData) throw new Error('Lookup data not available');
+      if (!lookupQuery.data) throw new Error('Lookup data not available');
       const query = {
-        ...(lookupData.result.query || {}),
-        code: lookupData.result.student.form_no,
+        ...(lookupQuery.data.result.query || {}),
+        code: lookupQuery.data.result.student.form_no,
       };
       return apiService.searchFaces(
-        lookupData.result.url,
-        lookupData.result.token,
+        lookupQuery.data.result.url,
+        lookupQuery.data.result.token,
         query
       );
     },
-    enabled: !!lookupData,
+    enabled: !!lookupQuery.data,
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (faceId: number) => {
-      if (!lookupData) throw new Error('Lookup data not available');
+      if (!lookupQuery.data) throw new Error('Lookup data not available');
       return apiService.deleteFace(
-        lookupData.result.url,
-        lookupData.result.token,
+        lookupQuery.data.result.url,
+        lookupQuery.data.result.token,
         faceId
       );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ 
-        queryKey: ['faces', lookupData?.result.student.form_no] 
+        queryKey: ['faces', lookupQuery.data?.result.student.form_no] 
       });
     },
   });
 
   const registerMutation = useMutation({
     mutationFn: async (image: string) => {
-      if (!lookupData) throw new Error('Lookup data not available');
+      if (!lookupQuery.data) throw new Error('Lookup data not available');
       
       const file = dataURLtoFile(image, 'face.jpg');
       return apiService.registerFace(
-        lookupData.result.url,
-        lookupData.result.token,
+        lookupQuery.data.result.url,
+        lookupQuery.data.result.token,
         file,
-        lookupData.result.payload || {},
-        lookupData.result.query || {}
+        lookupQuery.data.result.payload || {},
+        lookupQuery.data.result.query || {}
       );
     },
   });
@@ -84,14 +84,14 @@ function App() {
         if (event.data.type === 'resize' && event.data.height) {
           setIframeHeight(event.data.height + 'px');
         } else if (event.data.type === 'face-confirmed' && event.data.payload && event.data.payload.image) {
-          if (!lookupData) return;
+          if (!lookupQuery.data) return;
           registerMutation.mutate(event.data.payload.image);
         }
       }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [lookupData, registerMutation]);
+  }, [lookupQuery.data, registerMutation]);
 
 
   // Early return for loading state
@@ -109,21 +109,7 @@ function App() {
     );
   }
 
-  if (lookupData?.code !== '200') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-red-50 to-orange-50">
-        <div className="text-center max-w-md px-6">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i data-lucide="x-circle" className="w-8 h-8 text-red-600"></i>
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-gray-600">{lookupData?.message || 'Unable to verify your session.'}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!lookupData) {
+  if (lookupQuery.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-50 to-blue-50">
         <div className="text-center">
@@ -134,6 +120,22 @@ function App() {
     );
   }
 
+
+  if (!lookupQuery.data) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-red-50 to-orange-50">
+        <div className="text-center max-w-md px-6">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="x-circle" className="w-8 h-8 text-red-600"></i>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h2>
+          <p className="text-gray-600">{'Unable to verify your session.'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  
   if (registerMutation.isSuccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-green-50 to-emerald-50 px-4">
@@ -201,7 +203,7 @@ function App() {
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <img
-                  src={lookupData.result.student.image}
+                  src={lookupQuery.data.result.student.image}
                   alt="Student Photo"
                   className="w-16 h-16 rounded-full object-cover border-2 border-indigo-200"
                 />
@@ -211,16 +213,16 @@ function App() {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 text-lg mb-1">
-                  {lookupData.result.student.student_name}
+                  {lookupQuery.data.result.student.student_name}
                 </h3>
                 <div className="space-y-1">
                   <div className="flex items-center text-sm text-gray-600">
                     <i data-lucide="file-text" className="w-4 h-4 mr-2 text-gray-400"></i>
-                    Form: {lookupData.result.student.form_no}
+                    Form: {lookupQuery.data.result.student.form_no}
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <i data-lucide="graduation-cap" className="w-4 h-4 mr-2 text-gray-400"></i>
-                    Class: {lookupData.result.student.class_name}
+                    Class: {lookupQuery.data.result.student.class_name}
                   </div>
                 </div>
               </div>
@@ -228,7 +230,7 @@ function App() {
           </div>
 
           {/* Face Registration Section */}
-          {faceQuery.data && faceQuery.data.result && faceQuery.data.result.length > 0 ? (
+          {faceQuery.data && faceQuery.data.result && faceQuery.data.result.records.length > 0 ? (
             <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-5">
               <div className="flex items-start mb-3">
                 <i data-lucide="alert-triangle" className="w-5 h-5 text-yellow-600 mr-3 mt-0.5"></i>
@@ -239,9 +241,9 @@ function App() {
               </p>
               <button
                 onClick={() => {
-                  const existingFaceId = faceQuery.data?.result?.[0]?.face_id;
-                  if (existingFaceId) {
-                    deleteMutation.mutate(existingFaceId);
+                  const records = faceQuery.data!.result.records;
+                  for (const record of records) {
+                    deleteMutation.mutate(record.id);
                   }
                 }}
                 disabled={deleteMutation.isPending}

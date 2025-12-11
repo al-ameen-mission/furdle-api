@@ -5,13 +5,16 @@ export interface ApiResponse<T = undefined> {
 }
 
 export interface FaceRecord {
-  face_id: number
-  [key: string]: unknown
+  id: number
+  payload: Record<string, string>
 }
 
 export interface FaceSearchResponse {
-  result: FaceRecord[]
-  [key: string]: unknown
+  code: string
+  message: string
+  result: {
+    records: FaceRecord[]
+  }
 }
 
 export interface FaceOperationResponse {
