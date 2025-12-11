@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Core\HttpClient;
+use GuzzleHttp\Client;
 use App\Helpers\TokenHelper;
 use App\Helpers\MockDataHelper;
 use App\Core\Request;
@@ -153,33 +153,37 @@ class EventController
             }
             $control_session_id = $sessionDetail['control_session_id'];
 
-            // Make HTTP request to get student data using HttpClient
-            $client = new HttpClient();
-            $client->setVerifySSL(false);
-            $client->setHeaders([
-                'User-Agent' => 'Mozilla/5.0 (compatible; Al-Ameen-Face/1.0)',
-                'Accept' => 'application/json, text/plain, */*'
-            ]);
+            // Make HTTP request to get student data using Guzzle
+            $client = new Client(['verify' => false]);
 
             //call api to get student details
             $response = $client->get(
                 'https://aamsystem.in/alameen2023/import_student_api/api/admission.php',
                 [
-                    'action' => 'get_students_by_form_no',
-                    'controll_session' => $control_session_id,
-                    'form_no' => $code
+                    'headers' => [
+                        'User-Agent' => 'Mozilla/5.0 (compatible; Al-Ameen-Face/1.0)',
+                        'Accept' => 'application/json, text/plain, */*'
+                    ],
+                    'query' => [
+                        'action' => 'get_students_by_form_no',
+                        'controll_session' => $control_session_id,
+                        'form_no' => $code
+                    ]
                 ]
             );
 
-            if ($response['status'] !== 200) {
-                \App\Helpers\Logger::error('EventController API Error - Status: ' . $response['status'] . ' Body: ' . substr($response['body'], 0, 500), [], 'API');
-                $res->status($response['status'])->json(['error' => 'API request failed', 'code' => $response['status']]);
+            $status = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
+
+            if ($status !== 200) {
+                \App\Helpers\Logger::error('EventController API Error - Status: ' . $status . ' Body: ' . substr($body, 0, 500), [], 'API');
+                $res->status($status)->json(['error' => 'API request failed', 'code' => $status]);
                 return;
             }
 
             try {
                 // Clean the response body of any potential BOM or whitespace
-                $cleanBody = trim(ltrim($response['body'], "\xEF\xBB\xBF"));
+                $cleanBody = trim(ltrim($body, "\xEF\xBB\xBF"));
                 
                 // Check if the response looks like JSON
                 if (empty($cleanBody) || (substr($cleanBody, 0, 1) !== '{' && substr($cleanBody, 0, 1) !== '[')) {

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use GuzzleHttp\Client;
+
 /**
  * Face API Helper for interacting with face recognition API.
  */
@@ -37,16 +39,19 @@ class FaceApiHelper
   public static function generateToken(): ?string
   {
     try {
-      $client = new \App\Core\HttpClient();
-      $client->setHeaders([
-        'Content-Type' => 'application/json',
-        'Authorization' => 'Bearer ' . self::getApiToken()
+      $client = new Client();
+      $response = $client->post(self::getApiUrl("/rest/client-token"), [
+        'headers' => [
+          'Content-Type' => 'application/json',
+          'Authorization' => 'Bearer ' . self::getApiToken()
+        ],
+        'json' => ['code' => 'ORG1']
       ]);
+      $status = $response->getStatusCode();
+      $body = $response->getBody()->getContents();
+      $decoded = json_decode($body, true);
 
-      $response = $client->post(self::getApiUrl("/rest/client-token"), ['code' => 'ORG1']);
-      $decoded = $client->decodeJson($response);
-
-      if ($response['status'] === 200) {
+      if ($status === 200) {
         if (isset($decoded['result']['token'])) {
           return $decoded['result']['token'];
         }
@@ -60,15 +65,18 @@ class FaceApiHelper
   public static function searchFaces(array $query): array
   {
     try {
-      $client = new \App\Core\HttpClient();
-      $client->setHeaders([
-        'Content-Type' => 'application/json',
-        'Authorization' => 'Bearer ' . self::getApiToken(),
+      $client = new Client();
+      $response = $client->post(self::getApiUrl('/rest/faces/search'), [
+        'headers' => [
+          'Content-Type' => 'application/json',
+          'Authorization' => 'Bearer ' . self::getApiToken(),
+        ],
+        'json' => ["query" => $query]
       ]);
-      $url = self::getApiUrl('/rest/faces/search');
-      $response = $client->post($url, ["query" => $query]);
-      $decoded = $client->decodeJson($response);
-      if ($response['status'] === 200) {
+      $status = $response->getStatusCode();
+      $body = $response->getBody()->getContents();
+      $decoded = json_decode($body, true);
+      if ($status === 200) {
         if (isset($decoded['result']['records'])) {
           return $decoded['result']["records"];
         }
@@ -82,14 +90,14 @@ class FaceApiHelper
   public static function deleteFace(string $faceId): bool
   {
     try {
-      $client = new \App\Core\HttpClient();
-      $client->setHeaders([
-        'Content-Type' => 'application/json',
-        'Authorization' => 'Bearer ' . self::getApiToken(),
+      $client = new Client();
+      $response = $client->delete(self::getApiUrl('/rest/faces/' . $faceId), [
+        'headers' => [
+          'Content-Type' => 'application/json',
+          'Authorization' => 'Bearer ' . self::getApiToken(),
+        ]
       ]);
-      $url = self::getApiUrl('/rest/faces/' . $faceId);
-      $response = $client->delete($url, []);
-      return $response['status'] === 200;
+      return $response->getStatusCode() === 200;
     } catch (\Exception $e) {
       return false;
     }

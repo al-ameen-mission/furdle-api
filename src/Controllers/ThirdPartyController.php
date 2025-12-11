@@ -6,7 +6,7 @@ namespace App\Controllers;
 
 use App\Core\Request;
 use App\Core\Response;
-use App\Core\HttpClient;
+use GuzzleHttp\Client;
 use App\Helpers\DbHelper;
 use App\Helpers\FaceApiHelper;
 
@@ -32,14 +32,8 @@ class ThirdPartyController
     $form_no = $body['form_no'];
     $control_session = $body['session'];
 
-    // Make HTTP request to get student data using HttpClient
-    $client = new HttpClient();
-    $client->setVerifySSL(false);
-    $client->setHeaders([
-      'User-Agent' => 'Mozilla/5.0 (compatible; Al-Ameen-Face/1.0)',
-      'Accept' => 'application/json, text/plain, */*'
-    ]);
-
+    // Make HTTP request to get student data using Guzzle
+    $client = new Client(['verify' => false]);
     try {
       //find session id in database
       $sessionDetail = DbHelper::selectOne(
@@ -54,31 +48,36 @@ class ThirdPartyController
       $response = $client->get(
         'https://aamsystem.in/alameen2023/import_student_api/api/admission.php',
         [
-          'action' => 'get_students_by_form_no',
-          'controll_session' => $control_session,
-          'form_no' => $form_no
+          'headers' => [
+            'User-Agent' => 'Mozilla/5.0 (compatible; Al-Ameen-Face/1.0)',
+            'Accept' => 'application/json, text/plain, */*'
+          ],
+          'query' => [
+            'action' => 'get_students_by_form_no',
+            'controll_session' => $control_session,
+            'form_no' => $form_no
+          ]
         ]
       );
 
-      if ($response['status'] !== 200) {
-        $res->status($response['status'])->json(['code' => 'error', 'message' => 'API request failed']);
+      $status = $response->getStatusCode();
+      $body = $response->getBody()->getContents();
+      $decoded = json_decode($body, true);
+
+      if ($status !== 200) {
+        $res->status($status)->json(['code' => 'error', 'message' => 'API request failed']);
         return;
       }
 
       $student = null;
 
       // Log the raw response for debugging
-      \App\Helpers\Logger::info('External API Response Status: ' . $response['status'], [], 'API');
-      \App\Helpers\Logger::info('External API Response Preview: ' . substr($response['body'], 0, 200), [], 'API');
+      \App\Helpers\Logger::info('External API Response Status: ' . $status, [], 'API');
+      \App\Helpers\Logger::info('External API Response Preview: ' . substr($body, 0, 200), [], 'API');
 
-      try {
-        $decoded = $client->decodeJson($response);
-        $result = @$decoded['data'];
-        $student = @$result[0];
-      } catch (\Exception $e) {
-        $res->status(500)->json(['code' => 'error', 'message' => 'Failed to decode student data', 'details' => $e->getMessage()]);
-        return;
-      }
+      $result = @$decoded['data'];
+      $student = @$result[0];
+
       if ($student == null || !$student) {
         $res->status(404)->json(['code' => 'error', 'message' => 'Student not found']);
         return;
