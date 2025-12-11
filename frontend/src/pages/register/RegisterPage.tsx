@@ -162,7 +162,7 @@ function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-gray-100">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-gray-100 relative">
       <div className="max-w-md mx-auto bg-white shadow-xl min-h-screen">
         {/* Header */}
         <header className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-6 py-8 relative overflow-hidden">
@@ -177,16 +177,6 @@ function RegisterPage() {
             <p className="text-indigo-100 text-sm leading-relaxed">Complete your biometric registration securely</p>
           </div>
         </header>
-
-        {/* Loading State */}
-        {registerMutation.isPending && (
-          <div className="px-6 py-4 bg-blue-50 border-b border-blue-200">
-            <div className="flex items-center">
-              <div className="w-5 h-5 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mr-3"></div>
-              <p className="text-sm text-blue-700 font-medium">Submitting face data...</p>
-            </div>
-          </div>
-        )}
 
         {/* Error States */}
         {registerMutation.isError && (
@@ -252,9 +242,11 @@ function RegisterPage() {
               </p>
               <button
                 onClick={() => {
-                  const records = faceQuery.data!.result.records;
-                  for (const record of records) {
-                    deleteMutation.mutate(record.id);
+                  if (window.confirm('Are you sure you want to delete the existing face data?')) {
+                    const records = faceQuery.data!.result.records;
+                    for (const record of records) {
+                      deleteMutation.mutate(record.id);
+                    }
                   }
                 }}
                 disabled={deleteMutation.isPending}
@@ -321,6 +313,18 @@ function RegisterPage() {
           )}
         </main>
       </div>
+
+      {/* Loading Overlay */}
+      {(registerMutation.isPending || deleteMutation.isPending) && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-white text-lg font-medium">
+              {registerMutation.isPending ? 'Submitting face data...' : 'Deleting existing face...'}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
