@@ -65,6 +65,7 @@ class UserController
         if ($type == "admin") {
             $admin = DbHelper::selectOne("SELECT name, adminId, username, branch_code, adminType FROM admin WHERE username=? LIMIT 1", [$code]);
             if ($admin != null) {
+                $code = $admin["username"];
                 $branch = $this->getBranchByCode($admin['branch_code']);
 
                 // view only for preview purpose in future
@@ -73,13 +74,17 @@ class UserController
                 $preview[] = ["label" => "Type", "value" => $admin["adminType"] ?? "N/A"];
                 $preview[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
                 $user = [
-                    'code' => (string) $admin['username'],
+                    'code' => (string) $code,
                     'name' => $admin["name"],
                     "query" => [
                         "type" => "admin",
                     ],
+                    "uquery" => [
+                        "type" => "admin",
+                        "code" => (string) $code,
+                    ],
                     "payload" => [
-                        "code" => (string) $admin["username"],
+                        "code" => (string) $code,
                         "type" => "admin",
                         "branch" => $admin["branch_code"],
                     ],
@@ -112,6 +117,10 @@ class UserController
                         'name' => $student["name"],
                         "query" => [
                             "type" => "student",
+                        ],
+                        "uquery" => [
+                            "type" => "student",
+                            "code" => $code,
                         ],
                         "payload" => [
                             "code" => $code,
