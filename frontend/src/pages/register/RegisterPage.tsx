@@ -24,7 +24,9 @@ function RegisterPage() {
   const queryClient = useQueryClient();
 
   const [iframeHeight, setIframeHeight] = useState('400px');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const deleteModalRef = useRef<HTMLDialogElement>(null);
 
   const lookupQuery = useQuery({
     queryKey: ['third-party-lookup', formNo, session],
@@ -113,6 +115,14 @@ function RegisterPage() {
       }, 3000);
     }
   }, [registerMutation.isSuccess, redirect]);
+
+  useEffect(() => {
+    if (showDeleteModal && deleteModalRef.current) {
+      deleteModalRef.current.showModal();
+    } else if (deleteModalRef.current) {
+      deleteModalRef.current.close();
+    }
+  }, [showDeleteModal]);
 
 
   // Early return for loading state
@@ -258,14 +268,7 @@ function RegisterPage() {
                 </div>
                 <div className="card-actions justify-end">
                   <button
-                    onClick={() => {
-                      if (window.confirm('Are you sure you want to delete the existing face data?')) {
-                        const records = faceQuery.data!.result.records;
-                        for (const record of records) {
-                          deleteMutation.mutate(record.id);
-                        }
-                      }
-                    }}
+                    onClick={() => setShowDeleteModal(true)}
                     disabled={deleteMutation.isPending}
                     className="btn btn-warning btn-outline"
                   >
@@ -335,6 +338,43 @@ function RegisterPage() {
           )}
         </main>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <dialog ref={deleteModalRef} className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg text-base-content mb-4">
+            <Icon icon="hugeicons:alert-triangle" className="text-warning text-xl mr-2 inline" />
+            Confirm Deletion
+          </h3>
+          <p className="py-4 text-base-content/70">
+            Are you sure you want to delete the existing face data? This action cannot be undone.
+          </p>
+          <div className="modal-action">
+            <button
+              className="btn btn-ghost"
+              onClick={() => setShowDeleteModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="btn btn-error"
+              onClick={() => {
+                const records = faceQuery.data!.result.records;
+                for (const record of records) {
+                  deleteMutation.mutate(record.id);
+                }
+                setShowDeleteModal(false);
+              }}
+            >
+              <Icon icon="hugeicons:delete-01" className="text-base mr-2" />
+              Delete
+            </button>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={() => setShowDeleteModal(false)}>close</button>
+        </form>
+      </dialog>
 
       {/* Loading Overlay */}
       {(registerMutation.isPending || deleteMutation.isPending) && (
