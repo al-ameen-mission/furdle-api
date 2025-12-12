@@ -167,29 +167,11 @@ function RegisterPage() {
   }
 
 
-  if (registerMutation.isSuccess) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-base-100 px-4">
-        <div className="max-w-md w-full bg-base-200 rounded-2xl shadow-xl p-8 text-center">
-          <div className="w-20 h-20 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Icon icon="hugeicons:check-circle" className="text-3xl text-success" />
-          </div>
-          <h2 className="text-2xl font-bold text-base-content mb-3">Registration Successful!</h2>
-          <p className="text-base-content/70 leading-relaxed mb-4">Your face has been successfully registered in our system.</p>
-          {redirect && (
-            <p className="text-sm text-base-content/50">You will be redirected in 3 seconds...</p>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-base-100 relative">
       <div className="max-w-md mx-auto bg-base-100 shadow-xl min-h-screen">
         {/* Header */}
         <header className="bg-primary text-primary-content px-6 py-8 relative overflow-hidden">
-          <div className="absolute inset-0 bg-black opacity-10"></div>
           <div className="relative z-10">
             <div className="flex items-center mb-2">
               <div className="w-10 h-10 bg-primary-content/20 rounded-full flex items-center justify-center mr-3">
@@ -378,12 +360,28 @@ function RegisterPage() {
 
       {/* Loading Overlay */}
       {(registerMutation.isPending || deleteMutation.isPending) && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="text-center">
             <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-white text-lg font-medium">
               {registerMutation.isPending ? 'Submitting face data...' : 'Deleting existing face...'}
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Success Overlay */}
+      {registerMutation.isSuccess && (
+        <div className="min-h-screen flex items-center justify-center bg-base-100/80 backdrop-blur-md px-4 fixed inset-0 z-50 top-0 left-0">
+          <div className="max-w-md w-full bg-base-200/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 text-center border border-base-300/50">
+            <div className="w-20 h-20 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Icon icon="hugeicons:checkmark-circle-04" className="text-3xl text-success" />
+            </div>
+            <h2 className="text-2xl font-bold text-base-content mb-3">Registration Successful!</h2>
+            <p className="text-base-content/70 leading-relaxed mb-4">Your face has been successfully registered in our system.</p>
+            {redirect && (
+              <p className="text-sm text-base-content/50">You will be redirected in 3 seconds...</p>
+            )}
           </div>
         </div>
       )}
