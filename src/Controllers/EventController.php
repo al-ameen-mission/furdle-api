@@ -34,13 +34,13 @@ class EventController
         $events = [];
         foreach ($events_data as $event) {
             $type = "";
-            if ($event["type"] === "student") {
+            if ($event["event_type"] === "student") {
                 $type = "student";
-            } else if ($event["type"] === "admin") {
+            } else if ($event["event_type"] === "admin") {
                 $type = "admin";
-            } else if ($event["type"] === "exam") {
+            } else if ($event["event_type"] === "exam") {
                 $type = "student";
-            } else if ($event["type"] === "admission") {
+            } else if ($event["event_type"] === "admission") {
                 $type = "admission";
             }
             $record = [
