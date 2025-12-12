@@ -319,6 +319,13 @@ function RegisterPage() {
             </>
           )}
         </main>
+
+        {/* Footer */}
+        <footer className="px-6 py-4 mt-auto">
+          <div className="text-center text-sm text-base-content/50">
+            Powered by <span className="font-semibold text-primary">Furdle</span>
+          </div>
+        </footer>
       </div>
 
       {/* Delete Confirmation Modal */}
