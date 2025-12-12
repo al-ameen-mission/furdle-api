@@ -107,7 +107,9 @@ class EventController
                 $preview[] = ["label" => "Name", "value" => (string) $admin["name"]];
                 $preview[] = ["label" => "Username", "value" => (string) $admin["username"]];
                 $preview[] = ["label" => "Type", "value" => $admin["adminType"] ?? "N/A"];
-                $preview[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
+                if ($branch != null && $admin["branch_code"] != null) {
+                    $preview[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
+                }
                 $user = [
                     "preview" => $preview
                 ];
