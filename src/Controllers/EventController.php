@@ -33,12 +33,22 @@ class EventController
         $events_data = DbHelper::select("SELECT * FROM events WHERE active_status='Active' ORDER BY addedDate DESC");
         $events = [];
         foreach ($events_data as $event) {
+            $type = "";
+            if ($event["type"] === "student") {
+                $type = "student";
+            } else if ($event["type"] === "admin") {
+                $type = "admin";
+            } else if ($event["type"] === "exam") {
+                $type = "student";
+            } else if ($event["type"] === "admission") {
+                $type = "admission";
+            }
             $record = [
                 "code" => (string) $event["event_code"],
                 "name" => (string) $event["name"],
                 'description' => (string) $event["description"],
                 'query' => [
-                    'type' => (string) $event["event_type"],
+                    'type' => $type,
                 ],
                 "payload" => [
                     "event_code" => (string) $event["event_code"],
@@ -46,7 +56,7 @@ class EventController
             ];
             $events[] = $record;
         }
-
+        
         $events[] = [
             "code" => "admission:1",
             "name" => "Admission Exam Attendance",
