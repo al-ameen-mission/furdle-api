@@ -72,7 +72,9 @@ class UserController
                 $preview = [];
                 $preview[] = ["label" => "Username", "value" => (string) $admin["username"]];
                 $preview[] = ["label" => "Type", "value" => $admin["adminType"] ?? "N/A"];
-                $preview[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
+                if ($branch != null && $admin["branch_code"] != null) {
+                    $preview[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
+                }
                 $user = [
                     'code' => (string) $code,
                     'name' => $admin["name"],
