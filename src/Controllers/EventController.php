@@ -33,23 +33,23 @@ class EventController
         $events_data = DbHelper::select("SELECT * FROM events WHERE active_status='Active' ORDER BY addedDate DESC");
         $events = [];
         foreach ($events_data as $event) {
-            $type = "";
+            $query =[];
             if ($event["event_type"] === "student") {
-                $type = "student";
+                $query["type"] = "student";
             } else if ($event["event_type"] === "admin") {
-                $type = "admin";
+                $query["type"] = "admin";
             } else if ($event["event_type"] === "exam") {
-                $type = "student";
+                $query["type"] = "student";
             } else if ($event["event_type"] === "admission") {
-                $type = "admission";
+                $query["type"] = "admission";
+                $query["admission_exam_session_id"] = "1";
             }
+
             $record = [
                 "code" => (string) $event["event_code"],
                 "name" => (string) $event["name"],
                 'description' => (string) $event["description"],
-                'query' => [
-                    'type' => $type,
-                ],
+                'query' => $query,
                 "payload" => [
                     "event_code" => (string) $event["event_code"],
                 ],
@@ -57,18 +57,6 @@ class EventController
             $events[] = $record;
         }
         
-        $events[] = [
-            "code" => "admission:1",
-            "name" => "Admission Exam Attendance",
-            'description' => 'For marking attendance manually for admission exam candidates',
-            'query' => [
-                'admission_exam_session_id' => '1',
-                "type" => "admission",
-            ],
-            "payload" => [
-                "event_code" => "admission:1",
-            ],
-        ];
 
         $res->json(MockDataHelper::apiResponse([
             'records' => $events
