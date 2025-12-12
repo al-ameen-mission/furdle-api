@@ -311,6 +311,12 @@ class EventController
                         "preview" => $preview,
                     ];
                     $user["perm"] = $exam_perm;
+                } else {
+                    $res->status(403)->json([
+                        'code' => 'error',
+                        'message' => 'Access denied for this student'
+                    ]);
+                    return;
                 }
             }
         }
