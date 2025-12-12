@@ -61,7 +61,8 @@ class ApiService {
     token: string,
     imageFile: File,
     payload: Record<string, unknown>,
-    query: Record<string, unknown>
+    query: Record<string, unknown>,
+    uquery?: Record<string, unknown>
   ): Promise<FaceOperationResponse> {
     const faceApi = this.initFaceApi(baseUrl, token);
     
@@ -69,6 +70,9 @@ class ApiService {
     formData.append('image', imageFile);
     formData.append('payload', JSON.stringify(payload));
     formData.append('query', JSON.stringify(query));
+    if (uquery) {
+      formData.append('uquery', JSON.stringify(uquery));
+    }
 
     const response = await faceApi.post('/face/register', formData, {
       headers: {

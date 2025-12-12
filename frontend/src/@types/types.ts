@@ -27,6 +27,7 @@ export type ThirdPartyLookupApiResponse = ApiResponse<{
   admission_session_id: number
   payload: Record<string, string>,
   query: Record<string, string>,
+  uquery: Record<string, string>,
   student: {
     form_no: number,
     class_name: string,

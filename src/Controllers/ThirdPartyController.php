@@ -56,7 +56,7 @@ class ThirdPartyController
             'action' => 'get_students_by_form_no',
             'controll_session' => $control_session,
             'form_no' => $form_no
-          ]
+          ],
         ]
       );
 
@@ -100,6 +100,11 @@ class ThirdPartyController
           "query" => [
             "type" => "admission",
             "admission_exam_session_id" => (string) $admission_exam_session_id,
+          ],
+          "uquery" => [
+            "type" => "admission",
+            "admission_exam_session_id" => (string) $admission_exam_session_id,
+            "code" => (string) $student["form_no"],
           ],
           "payload" => [
             "code" => (string) $student["form_no"],

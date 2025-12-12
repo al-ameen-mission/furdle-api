@@ -75,7 +75,8 @@ function RegisterPage() {
         lookupQuery.data.result.token,
         file,
         lookupQuery.data.result.payload || {},
-        lookupQuery.data.result.query || {}
+        lookupQuery.data.result.query || {},
+        lookupQuery.data.result.uquery || {}
       );
     },
   });
