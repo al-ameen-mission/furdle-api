@@ -54,8 +54,12 @@ class EventController
      */
     public function index(Request $req, Response $res): void
     {
+        $auth = $req->auth;
+        $admin_id = $auth->id;
         //get list of events from database
-        $events_data = DbHelper::select("SELECT * FROM events WHERE active_status='Active' ORDER BY `priority` DESC");
+        $events_data = DbHelper::select("SELECT e.* FROM events e
+            INNER JOIN event_admin_access eaa ON eaa.event_id = e.events_id AND eaa.admin_id = ?
+        WHERE e.active_status='Active' ORDER BY `e`.`priority` DESC", [$admin_id]);
         $events = [];
         foreach ($events_data as $event) {
             $query = [];
