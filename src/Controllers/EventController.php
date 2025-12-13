@@ -366,9 +366,9 @@ class EventController
             $is_already_marked = true;
         }
 
-        $user["preview"][] = ["label" => "Entry Time", "value" => $attendance['entry_time']];
+        $user["preview"][] = ["label" => "Entry Time", "value" => date('d M Y, H:i A', strtotime($attendance['entry_time']))];
         if ($attendance['exit_time'] != null) {
-            $user["preview"][] = ["label" => "Exit Time", "value" => $attendance["exit_time"]];
+            $user["preview"][] = ["label" => "Exit Time", "value" => date('d M Y, H:i A', strtotime($attendance["exit_time"]))];
         }
         if ($is_already_marked) {
             $user["preview"][] = ["label" => "Status", "value" => "Already Marked"];
