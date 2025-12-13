@@ -54,7 +54,7 @@ class EventController
     public function index(Request $req, Response $res): void
     {
         //get list of events from database
-        $events_data = DbHelper::select("SELECT * FROM events WHERE active_status='Active' ORDER BY addedDate DESC");
+        $events_data = DbHelper::select("SELECT * FROM events WHERE active_status='Active' ORDER BY `priority` DESC");
         $events = [];
         foreach ($events_data as $event) {
             $query = [];
