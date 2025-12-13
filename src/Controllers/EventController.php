@@ -329,6 +329,7 @@ class EventController
         }
 
         //check event settings for exit and recurring
+        $is_already_marked = false;
         $has_exit = $event["allow_exit"] == "Yes" ? true : false;
         $has_recurring = $event["allow_recurring"] == "Yes" ? true : false;
 
@@ -361,6 +362,15 @@ class EventController
             ];
             DbHelper::insert('event_attendances', $attendance_data);
             $attendance = $attendance_data;
+        } else {
+            $is_already_marked = true;
+        }
+        if ($is_already_marked) {
+            $res->status(400)->json([
+                'code' => 'error',
+                'message' => 'Attendance already marked'
+            ]);
+            return;
         }
 
         $res->json(MockDataHelper::apiResponse([
