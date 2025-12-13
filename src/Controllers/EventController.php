@@ -340,8 +340,8 @@ class EventController
             $attendance_data = [
                 'event_id' => $event['events_id'],
                 'user_code' => $code,
-                'status' => 'Present',
                 'entry_time' => date('Y-m-d H:i:s'),
+                'dated' => date('Y-m-d'),
             ];
             DbHelper::insert('event_attendances', $attendance_data);
             $attendance = $attendance_data;
@@ -355,8 +355,8 @@ class EventController
                 $attendance_data = [
                     'event_id' => $event['events_id'],
                     'user_code' => $code,
-                    'status' => 'Present',
                     'entry_time' => date('Y-m-d H:i:s'),
+                    'dated' => date('Y-m-d'),
                 ];
                 DbHelper::insert('event_attendances', $attendance_data);
                 $attendance = $attendance_data;
