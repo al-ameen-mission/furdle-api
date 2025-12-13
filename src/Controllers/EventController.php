@@ -366,9 +366,13 @@ class EventController
             $is_already_marked = true;
         }
 
-        $user["preview"][] = ["label" => "Entry Time", "value" => date('d M Y, H:i A', strtotime($attendance['entry_time']))];
+        $entryTime = new \DateTime($attendance['entry_time']);
+        $entryTime->setTimezone(new \DateTimeZone('Asia/Kolkata'));
+        $user["preview"][] = ["label" => "Entry Time", "value" => $entryTime->format('d M Y, H:i A')];
         if ($attendance['exit_time'] != null) {
-            $user["preview"][] = ["label" => "Exit Time", "value" => date('d M Y, H:i A', strtotime($attendance["exit_time"]))];
+            $exitTime = new \DateTime($attendance['exit_time']);
+            $exitTime->setTimezone(new \DateTimeZone('Asia/Kolkata'));
+            $user["preview"][] = ["label" => "Exit Time", "value" => $exitTime->format('d M Y, H:i A')];
         }
         if ($is_already_marked) {
             $user["preview"][] = ["label" => "Status", "value" => "Already Marked"];
