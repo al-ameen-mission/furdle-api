@@ -72,8 +72,9 @@ Required additional fields:
 
 ### Admin Events (`event_type = admin`)
 
-* No additional fields.
-* Uses **only common fields**.
+Required additional fields:
+
+* `branch_code`
 
 ---
 
