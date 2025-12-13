@@ -348,7 +348,7 @@ class EventController
         } else {
             //check for exit marking
             if ($has_exit && $attendance['exit_time'] == null) {
-                DbHelper::update('event_attendances', ['exit_time' => date('Y-m-d H:i:s')], 'id=?', [$attendance['id']]);
+                DbHelper::update('event_attendances', ['exit_time' => date('Y-m-d H:i:s')], 'event_attendance_id=?', [$attendance['event_attendance_id']]);
                 $attendance['exit_time'] = date('Y-m-d H:i:s');
             } else if ($has_recurring) {
                 //mark recurring attendance
