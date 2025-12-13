@@ -329,6 +329,42 @@ class EventController
             return;
         }
 
+        //check event settings for exit and recurring
+        $has_exit = $event["allow_exit"] == "Yes" ? true : false;
+        $has_recurring = $event["allow_recurring"] == "Yes" ? true : false;
+
+        //find attendance and mark attendance if not marked already
+        $attendance = DbHelper::selectOne("SELECT * FROM event_attendance WHERE event_id=? AND user_code=? AND dated = CURDATE() ORDER BY entry_time DESC LIMIT 1", [$event['event_id'], $code]);
+        if ($attendance == null) {
+            //mark attendance
+            $attendance_data = [
+                'event_id' => $event['event_id'],
+                'user_code' => $code,
+                'status' => 'Present',
+                'entry_time' => date('Y-m-d H:i:s'),
+            ];
+            DbHelper::insert('event_attendance', $attendance_data);
+            $attendance = $attendance_data;
+        } else {
+            //check for exit marking
+            if ($has_exit && $attendance['exit_time'] == null) {
+                DbHelper::update('event_attendance', ['exit_time' => date('Y-m-d H:i:s')], 'id=?', [$attendance['id']]);
+                $attendance['exit_time'] = date('Y-m-d H:i:s');
+            } else if ($has_recurring) {
+                //mark recurring attendance
+                $attendance_data = [
+                    'event_id' => $event['event_id'],
+                    'user_code' => $code,
+                    'status' => 'Present',
+                    'entry_time' => date('Y-m-d H:i:s'),
+                ];
+                DbHelper::insert('event_attendance', $attendance_data);
+                $attendance = $attendance_data;
+            } else {
+                //do nothing already marked
+            }
+        }
+        
         $res->json(MockDataHelper::apiResponse([
             'user' => $user
         ], 'User retrieved successfully'),);
