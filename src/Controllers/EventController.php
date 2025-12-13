@@ -334,7 +334,7 @@ class EventController
         $has_recurring = $event["allow_recurring"] == "Yes" ? true : false;
 
         //find attendance and mark attendance if not marked already
-        $attendance = DbHelper::selectOne("SELECT * FROM event_attendance WHERE events_id=? AND user_code=? AND dated = CURDATE() ORDER BY entry_time DESC LIMIT 1", [$event['events_id'], $code]);
+        $attendance = DbHelper::selectOne("SELECT * FROM event_attendances WHERE events_id=? AND user_code=? AND dated = CURDATE() LIMIT 1", [$event['events_id'], $code]);
         if ($attendance == null) {
             //mark attendance
             $attendance_data = [
@@ -343,12 +343,12 @@ class EventController
                 'status' => 'Present',
                 'entry_time' => date('Y-m-d H:i:s'),
             ];
-            DbHelper::insert('event_attendance', $attendance_data);
+            DbHelper::insert('event_attendances', $attendance_data);
             $attendance = $attendance_data;
         } else {
             //check for exit marking
             if ($has_exit && $attendance['exit_time'] == null) {
-                DbHelper::update('event_attendance', ['exit_time' => date('Y-m-d H:i:s')], 'id=?', [$attendance['id']]);
+                DbHelper::update('event_attendances', ['exit_time' => date('Y-m-d H:i:s')], 'id=?', [$attendance['id']]);
                 $attendance['exit_time'] = date('Y-m-d H:i:s');
             } else if ($has_recurring) {
                 //mark recurring attendance
@@ -358,7 +358,7 @@ class EventController
                     'status' => 'Present',
                     'entry_time' => date('Y-m-d H:i:s'),
                 ];
-                DbHelper::insert('event_attendance', $attendance_data);
+                DbHelper::insert('event_attendances', $attendance_data);
                 $attendance = $attendance_data;
             } else {
                 //do nothing already marked
