@@ -334,7 +334,7 @@ class EventController
         $has_recurring = $event["allow_recurring"] == "Yes" ? true : false;
 
         //find attendance and mark attendance if not marked already
-        $attendance = DbHelper::selectOne("SELECT * FROM event_attendances WHERE event_id=? AND user_code=? AND dated = CURDATE() LIMIT 1", [$event['events_id'], $code]);
+        $attendance = DbHelper::selectOne("SELECT * FROM event_attendances WHERE event_id=? AND user_code=? LIMIT 1", [$event['events_id'], $code]);
         if ($attendance == null) {
             //mark attendance
             $attendance_data = [
@@ -345,26 +345,21 @@ class EventController
             ];
             DbHelper::insert('event_attendances', $attendance_data);
             $attendance = $attendance_data;
-        } else {
-            //check for exit marking
-            if ($has_exit && $attendance['exit_time'] == null) {
-                DbHelper::update('event_attendances', ['exit_time' => date('Y-m-d H:i:s')], 'event_attendance_id=?', [$attendance['event_attendance_id']]);
-                $attendance['exit_time'] = date('Y-m-d H:i:s');
-            } else if ($has_recurring) {
-                //mark recurring attendance
-                $attendance_data = [
-                    'event_id' => $event['events_id'],
-                    'user_code' => $code,
-                    'entry_time' => date('Y-m-d H:i:s'),
-                    'dated' => date('Y-m-d'),
-                ];
-                DbHelper::insert('event_attendances', $attendance_data);
-                $attendance = $attendance_data;
-            } else {
-                //do nothing already marked
-            }
+        } else if ($attendance["dated"] == date('Y-m-d') && $has_exit && $attendance['exit_time'] == null) {
+            DbHelper::update('event_attendances', ['exit_time' => date('Y-m-d H:i:s')], 'event_attendance_id=?', [$attendance['event_attendance_id']]);
+            $attendance['exit_time'] = date('Y-m-d H:i:s');
+        } else if ($attendance['dated'] != date('Y-m-d') && $has_recurring) {
+            //mark attendance again for recurring
+            $attendance_data = [
+                'event_id' => $event['events_id'],
+                'user_code' => $code,
+                'entry_time' => date('Y-m-d H:i:s'),
+                'dated' => date('Y-m-d'),
+            ];
+            DbHelper::insert('event_attendances', $attendance_data);
+            $attendance = $attendance_data;
         }
-        
+
         $res->json(MockDataHelper::apiResponse([
             'user' => $user
         ], 'User retrieved successfully'),);
