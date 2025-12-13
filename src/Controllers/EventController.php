@@ -58,7 +58,7 @@ class EventController
         $admin_id = $auth->id;
         //get list of events from database
         $events_data = DbHelper::select("SELECT e.* FROM events e
-            INNER JOIN event_admin_access eaa ON eaa.event_id = e.events_id AND eaa.admin_id = ?
+            INNER JOIN event_permissions ep ON ep.event_id = e.events_id AND ep.admin_id = ?
         WHERE e.active_status='Active' ORDER BY `e`.`priority` DESC", [$admin_id]);
         $events = [];
         foreach ($events_data as $event) {
