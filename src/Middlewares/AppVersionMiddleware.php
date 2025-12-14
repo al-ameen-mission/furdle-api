@@ -46,7 +46,10 @@ class AppVersionMiddleware implements Middleware
         if (!$buildNumber || !is_numeric($buildNumber) || (int)$buildNumber < $minBuild) {
             $res->status(403)->json([
                 'code' => 'FORCE_UPDATE_APP',
-                'message' => 'App version too old. Please update to the latest version. Minimum build number for ' . $deviceType . ' is ' . $minBuild
+                'message' => 'App version too old. Please update to the latest version. Minimum build number for ' . $deviceType . ' is ' . $minBuild,
+                'result'=> [
+                  "redirectUrl" => "https://example.com/downloads"
+                ]
             ]);
             return;
         }
