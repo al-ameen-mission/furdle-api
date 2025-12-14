@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Helpers\TokenHelper;
 use App\Core\Request;
 use App\Core\Response;
+use App\Helpers\AdminAccessHelper;
 use App\Helpers\DbHelper;
 use App\Helpers\FaceApiHelper;
 
@@ -15,6 +16,17 @@ use App\Helpers\FaceApiHelper;
  */
 class AuthController
 {
+  protected function getPermissions(array $admin): array
+  {
+    $permissions = [];
+    if(AdminAccessHelper::hasGlobalAccess($admin, "Events", "AppAttendance")) {
+      $permissions[] = "attendance";
+    }
+    if(AdminAccessHelper::hasGlobalAccess($admin,"Events", "AppFaceRegistration")) {
+      $permissions[] = "register";
+    }
+    return $permissions;
+  }
   /**
    * Handle user login.
    *
@@ -57,6 +69,7 @@ class AuthController
     $tokens = TokenHelper::generate($user);
 
     $faceToken = FaceApiHelper::generateToken();
+    
 
     $res->json([
       'code' => 'success',
@@ -68,10 +81,7 @@ class AuthController
           "face" => $faceToken
         ],
         'user' => $user,
-        'permissions' => [
-          "attendance",
-          "register"
-        ]
+        'permissions' => $this->getPermissions($admin)
       ]
     ]);
   }
@@ -175,10 +185,7 @@ class AuthController
       'message' => 'Token verified successfully',
       'result' => [
         'user' => $user,
-        'permissions' => [
-          "attendance",
-          "register"
-        ]
+        'permissions' => $this->getPermissions($admin)
       ]
     ]);
   }
