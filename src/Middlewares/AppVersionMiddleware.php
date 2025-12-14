@@ -16,8 +16,8 @@ class AppVersionMiddleware implements Middleware
 {
     private const VALID_DEVICE_TYPES = ['ios', 'android', 'linux', 'macos', 'windows'];
     private const MIN_BUILD_NUMBERS = [
-        'ios' => 2,
-        'android' => 2,
+        'ios' => 1,
+        'android' => 1,
         'linux' => 1,
         'macos' => 1,
         'windows' => 1,
