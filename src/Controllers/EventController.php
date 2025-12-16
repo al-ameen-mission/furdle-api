@@ -255,7 +255,7 @@ class EventController
                 $res->status(500)->json(['error' => 'Failed to process response', 'code' => 'error']);
                 return;
             }
-            if ($student != null) {
+            if ($student != null  && isset($student['form_no']) && $student['form_no'] == $code) {
                 $preview = [];
                 $preview[] = ['label' => 'Name', 'value' => (string) $student['student_name']];
                 $preview[] = ["label" => "Form no", "value" => (string) $student['form_no']];
