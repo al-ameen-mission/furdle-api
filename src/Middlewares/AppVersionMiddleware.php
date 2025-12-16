@@ -14,13 +14,14 @@ use App\Core\Response;
  */
 class AppVersionMiddleware implements Middleware
 {
-    private const VALID_DEVICE_TYPES = ['ios', 'android', 'linux', 'macos', 'windows'];
+    private const VALID_DEVICE_TYPES = ['ios', 'android', 'linux', 'macos', 'windows', 'web'];
     private const MIN_BUILD_NUMBERS = [
         'ios' => 1,
         'android' => 1,
         'linux' => 1,
         'macos' => 1,
         'windows' => 1,
+        'web' => 1,
     ]; // Minimum required build numbers by platform
 
     public function handle(Request $req, Response $res, callable $next): void
@@ -34,7 +35,7 @@ class AppVersionMiddleware implements Middleware
                 'code' => 'error',
                 'message' => 'Invalid or missing X-Device-Type header. Must be one of: ' . implode(', ', self::VALID_DEVICE_TYPES),
                 "result" => [
-                  "redirectUrl" => "https://example.com/downloads"
+                    "redirectUrl" => "https://example.com/downloads"
                 ]
             ]);
             return;
@@ -47,8 +48,8 @@ class AppVersionMiddleware implements Middleware
             $res->status(403)->json([
                 'code' => 'FORCE_UPDATE_APP',
                 'message' => 'App version too old. Please update to the latest version. Minimum build number for ' . $deviceType . ' is ' . $minBuild,
-                'result'=> [
-                  "redirectUrl" => "https://example.com/downloads"
+                'result' => [
+                    "redirectUrl" => "https://example.com/downloads"
                 ]
             ]);
             return;

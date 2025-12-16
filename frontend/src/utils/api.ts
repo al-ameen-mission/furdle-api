@@ -23,11 +23,15 @@ class ApiService {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          "X-Device-Type": "web",
+          "X-App-Build-Number": "1",
         },
       });
     } else {
       this.faceApi.defaults.baseURL = baseUrl;
       this.faceApi.defaults.headers['Authorization'] = `Bearer ${token}`;
+      this.faceApi.defaults.headers["X-Device-Type"] = "web";
+      this.faceApi.defaults.headers["X-App-Build-Number"] = "1";
     }
     return this.faceApi;
   }
