@@ -20,9 +20,9 @@ export default function NotFoundPage() {
         </p>
         <button
           onClick={() => window.location.href = '/'}
-          className="btn btn-primary btn-lg px-8 py-3 text-lg font-medium"
+          className="btn btn-primary btn-outline"
         >
-          <Icon icon="hugeicons:home-01" className="text-xl mr-3" />
+          <Icon icon="hugeicons:home-01" className="text-lg mr-2" />
           Go Back Home
         </button>
       </div>
