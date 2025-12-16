@@ -1,8 +1,8 @@
-import axios, {type  AxiosInstance } from 'axios';
-import type { 
-  ThirdPartyLookupApiResponse, 
-  FaceSearchResponse, 
-  FaceOperationResponse 
+import axios, { type AxiosInstance } from 'axios';
+import type {
+  ThirdPartyLookupApiResponse,
+  FaceSearchResponse,
+  FaceOperationResponse
 } from '../@types/types';
 
 class ApiService {
@@ -11,7 +11,12 @@ class ApiService {
 
   constructor() {
     this.baseApi = axios.create({
-      baseURL: import.meta.env.VITE_API_URL
+      baseURL: import.meta.env.VITE_API_URL,
+      headers: {
+        'Content-Type': 'application/json',
+        "X-Device-Type": "web",
+        "X-App-Build-Number": "1",
+      },
     });
   }
 
@@ -23,15 +28,11 @@ class ApiService {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          "X-Device-Type": "web",
-          "X-App-Build-Number": "1",
         },
       });
     } else {
       this.faceApi.defaults.baseURL = baseUrl;
       this.faceApi.defaults.headers['Authorization'] = `Bearer ${token}`;
-      this.faceApi.defaults.headers["X-Device-Type"] = "web";
-      this.faceApi.defaults.headers["X-App-Build-Number"] = "1";
     }
     return this.faceApi;
   }
@@ -69,7 +70,7 @@ class ApiService {
     uquery?: Record<string, unknown>
   ): Promise<FaceOperationResponse> {
     const faceApi = this.initFaceApi(baseUrl, token);
-    
+
     const formData = new FormData();
     formData.append('image', imageFile);
     formData.append('payload', JSON.stringify(payload));
