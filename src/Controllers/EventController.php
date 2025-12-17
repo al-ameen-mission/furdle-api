@@ -190,6 +190,7 @@ class EventController
             $attendance['exit_time'] = $timestamp;
         } else if ($active_date == $attendance['dated']) {
             $is_already_marked = true;
+            $can_exit = $is_exit_allowed;
         } else {
             $res->status(400)->json([
                 'code' => 'error',
