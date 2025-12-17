@@ -111,7 +111,7 @@ class EventController
 
         $event_id = $data['code'];
         $direction = $data['direction'] ?? "entry";
-        $code = (string)$data["payload"]['code'];
+        $code = (string) $data["payload"]['code'];
 
         // Find the event details
         $event = DbHelper::selectOne("SELECT * FROM events WHERE event_id=? LIMIT 1", [$event_id]);
@@ -144,7 +144,7 @@ class EventController
 
         // Find existing attendance
         $attendance = DbHelper::selectOne(
-            "SELECT * FROM event_attendances WHERE event_id=? AND user_code=? ORDER BY dated DESC LIMIT 1", 
+            "SELECT * FROM event_attendances WHERE event_id=? AND user_code=? ORDER BY dated DESC LIMIT 1",
             [$event['event_id'], $code]
         );
 
@@ -165,6 +165,7 @@ class EventController
                 'dated' => $active_date,
             ];
             DbHelper::insert('event_attendances', $attendance);
+            $can_exit = $is_exit_allowed;
         } elseif ($direction === 'exit') {
             // Processing Exit
             if ($attendance["dated"] !== $active_date) {
@@ -177,9 +178,9 @@ class EventController
 
             if ($is_exit_allowed && $attendance['exit_time'] === null) {
                 DbHelper::update(
-                    'event_attendances', 
-                    ['exit_time' => $timestamp], 
-                    'event_attendance_id=?', 
+                    'event_attendances',
+                    ['exit_time' => $timestamp],
+                    'event_attendance_id=?',
                     [$attendance['event_attendance_id']]
                 );
                 $attendance['exit_time'] = $timestamp;
@@ -196,27 +197,31 @@ class EventController
                     'dated' => $active_date,
                 ];
                 DbHelper::insert('event_attendances', $attendance);
+                $can_exit = $is_exit_allowed;
             }
         }
 
         // Prepare response
         $user["preview"][] = ["label" => "Entry Time", "value" => DateTimeHelper::formatHumanDateTime($attendance["entry_time"])];
-        
+
         if (!empty($attendance['exit_time'])) {
             $user["preview"][] = ["label" => "Exit Time", "value" => DateTimeHelper::formatHumanDateTime($attendance["exit_time"])];
         }
-        
+
         $user["preview"][] = [
-            "label" => "Status", 
+            "label" => "Status",
             "value" => $is_already_marked ? "Already Marked" : "Marked Successfully"
         ];
 
-        $responseData = ['user' => $user];
+        $response_data = [
+            'user' => $user,
+            "direction" => $direction
+        ];
         if ($direction === 'entry') {
-            $responseData['canExit'] = $can_exit;
+            $response_data['canExit'] = $can_exit;
         }
 
-        $res->json(MockDataHelper::apiResponse($responseData, 'User retrieved successfully'));
+        $res->json(MockDataHelper::apiResponse($response_data, 'User retrieved successfully'));
     }
 
     /**
@@ -227,14 +232,14 @@ class EventController
     private function resolveUser(array $event, string $code): array
     {
         $type = $event["event_type"];
-        
+
         switch ($type) {
             case 'admin':
                 $admin = DbHelper::selectOne(
-                    "SELECT name, adminId, username, branch_code, adminType FROM admin WHERE username=? LIMIT 1", 
+                    "SELECT name, adminId, username, branch_code, adminType FROM admin WHERE username=? LIMIT 1",
                     [$code]
                 );
-                
+
                 if (!$admin) {
                     throw new \Exception('User not found', 404);
                 }
@@ -249,7 +254,7 @@ class EventController
                 if ($branch && $admin["branch_code"]) {
                     $preview[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
                 }
-                
+
                 return ["preview" => $preview];
 
             case 'student':
@@ -309,13 +314,13 @@ class EventController
                 // Exam logic
                 $examPerm = $this->getExamPerm($event);
                 $allowedBranches = $examPerm["branches"] ?? [];
-                
+
                 $hasBranchAccess = in_array($branchCode, $allowedBranches);
                 $hasClassAccess = false;
-                
+
                 foreach ($examPerm["classes"] as $classPerm) {
-                    if ($classPerm["session"] === (string)$student['asession'] && $classPerm["class"] === (string)$student['class']) {
-                        $hasClassAccess = true; 
+                    if ($classPerm["session"] === (string) $student['asession'] && $classPerm["class"] === (string) $student['class']) {
+                        $hasClassAccess = true;
                         break;
                     }
                 }
@@ -357,8 +362,8 @@ class EventController
 
                 $status = $response->getStatusCode();
                 if ($status !== 200) {
-                     // Could log specific error here if needed
-                     throw new \Exception('API request failed', $status);
+                    // Could log specific error here if needed
+                    throw new \Exception('API request failed', $status);
                 }
 
                 $body = $response->getBody()->getContents();
