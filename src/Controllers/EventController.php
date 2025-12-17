@@ -101,7 +101,7 @@ class EventController
     public function attend(Request $req, Response $res): void
     {
         $data = $req->json();
-        if (!$data) {
+        if (!$data || !isset($data["payload"]['type'], $data["payload"]['code'])) {
             $res->status(400)->json([
                 'code' => 'error',
                 'message' => 'Type and code are required'
@@ -109,281 +109,289 @@ class EventController
             return;
         }
 
-        $payload = $data["payload"];
-
-        if (!$payload || !isset($payload['type']) || !isset($payload['code'])) {
-            $res->status(400)->json([
-                'code' => 'error',
-                'message' => 'Payload is required'
-            ]);
-            return;
-        }
         $event_id = $data['code'];
-        $code = $payload['code'];
+        $direction = $data['direction'] ?? "entry";
+        $code = (string)$data["payload"]['code'];
 
-        //find the event details from database
+        // Find the event details
         $event = DbHelper::selectOne("SELECT * FROM events WHERE event_id=? LIMIT 1", [$event_id]);
-        if ($event == null) {
+        if (!$event) {
             $res->status(404)->json([
                 'code' => 'error',
                 'message' => 'Event not found'
             ]);
             return;
         }
-        $event_type = $event["event_type"];
 
-        //for admin call database
-        $user = null;
-        if ($event_type == "admin") {
-            $admin = DbHelper::selectOne("SELECT name, adminId, username, branch_code, adminType FROM admin WHERE username=? LIMIT 1", [$code]);
-            if ($admin != null) {
-                $branch = $this->getBranchByCode($admin['branch_code']);
-
-                // view only for preview purpose in future
-                $preview = [];
-                $preview[] = ["label" => "Name", "value" => (string) $admin["name"]];
-                $preview[] = ["label" => "Username", "value" => (string) $admin["username"]];
-                $preview[] = ["label" => "Type", "value" => $admin["adminType"] ?? "N/A"];
-                if ($branch != null && $admin["branch_code"] != null) {
-                    $preview[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
-                }
-                $user = [
-                    "preview" => $preview
-                ];
-            }
-        } else if ($event_type == "student") {
-            $student = DbHelper::selectOne("
-                SELECT 
-                    s.name,
-                    s.registerNo,
-                    s.branch,
-                    s.studentId,
-                    h.asession,
-                    h.class,
-                    h.board
-                FROM student AS s
-                LEFT JOIN history AS h 
-                    ON h.studentId = s.studentId
-                WHERE s.registerNo = ?
-                ORDER BY h.asession DESC
-                LIMIT 1
-            ", [$code]);
-            if ($student != null) {
-                $code = (string) $student['registerNo'];
-                $branch = (string) $student['branch'];
-                $session = (string) $student['asession'];
-                $class = (string) $student['class'];
-                $board = (string) $student['board'];
-                $branch_details = $this->getBranchByCode($student['branch']);
-                //dynamic filed is for displaying data in future if needed
-                $preview = [];
-                $preview[] = ['label' => 'Name', 'value' => (string) $student['name']];
-                $preview[] = ["label" => "Register no", "value" => $code];
-                $preview[] = ["label" => "Branch", "value" => $branch_details["branch_name"] ?? $branch];
-                $preview[] = ["label" => "Session", "value" => $session];
-                $preview[] = ["label" => "Class", "value" => $class];
-                $preview[] = ["label" => "Board", "value" => $board];
-
-                $user = [
-                    "preview" => $preview,
-                ];
-            }
-        } else if ($event_type == "admission") {
-            $session_id = "1";
-            //find session id in database
-            $sessionDetail = DbHelper::selectOne(
-                'SELECT * FROM admission_exam_session WHERE admission_exam_session_id=?',
-                [$session_id]
-            );
-            if ($sessionDetail == null) {
-                $res->status(404)->json(['message' => 'Invalid session', "code" => "error"]);
-                return;
-            }
-            $control_session_id = $sessionDetail['control_session_id'];
-
-            // Make HTTP request to get student data using Guzzle
-            $client = new Client(['verify' => false]);
-
-            //call api to get student details
-            $response = $client->get(
-                'https://aamsystem.in/alameen2023/import_student_api/api/admission.php',
-                [
-                    'headers' => [
-                        'User-Agent' => 'Mozilla/5.0 (compatible; Al-Ameen-Face/1.0)',
-                        'Accept' => 'application/json, text/plain, */*'
-                    ],
-                    'query' => [
-                        'action' => 'get_students_by_form_no',
-                        'controll_session' => $control_session_id,
-                        'form_no' => $code
-                    ]
-                ]
-            );
-
-            $status = $response->getStatusCode();
-            $body = $response->getBody()->getContents();
-
-            if ($status !== 200) {
-                \App\Helpers\Logger::error('EventController API Error - Status: ' . $status . ' Body: ' . substr($body, 0, 500), [], 'API');
-                $res->status($status)->json(['error' => 'API request failed', 'code' => $status]);
-                return;
-            }
-
-            try {
-                // Clean the response body of any potential BOM or whitespace
-                $cleanBody = trim(ltrim($body, "\xEF\xBB\xBF"));
-
-                // Check if the response looks like JSON
-                if (empty($cleanBody) || (substr($cleanBody, 0, 1) !== '{' && substr($cleanBody, 0, 1) !== '[')) {
-                    \App\Helpers\Logger::error('EventController Invalid JSON response: ' . substr($cleanBody, 0, 200), [], 'API');
-                    $res->status(500)->json(['error' => 'Invalid response format from external API', 'code' => 'error']);
-                    return;
-                }
-
-                $decoded = json_decode($cleanBody, true);
-
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    \App\Helpers\Logger::error('EventController JSON decode error: ' . json_last_error_msg() . ' - Response: ' . substr($cleanBody, 0, 200), [], 'API');
-                    $res->status(500)->json(['error' => 'Failed to decode JSON response', 'code' => 'error']);
-                    return;
-                }
-
-                $result = @$decoded['data'];
-                $student = @$result[0];
-            } catch (\Exception $e) {
-                \App\Helpers\Logger::error('EventController Exception: ' . $e->getMessage(), [], 'API');
-                $res->status(500)->json(['error' => 'Failed to process response', 'code' => 'error']);
-                return;
-            }
-            if ($student != null  && isset($student['form_no']) && $student['form_no'] == $code) {
-                $preview = [];
-                $preview[] = ['label' => 'Name', 'value' => (string) $student['student_name']];
-                $preview[] = ["label" => "Form no", "value" => (string) $student['form_no']];
-                $preview[] = ['label' => 'Class', 'value' => (string) $student['class_name']];
-
-                $user = [
-                    "preview" => $preview,
-                ];
-            }
-        } else if ($event_type == "exam") {
-            $exam_perm = $this->getExamPerm($event);
-            $branches = $exam_perm["branches"] ?? [];
-            $student = DbHelper::selectOne("
-                SELECT 
-                    s.name,
-                    s.registerNo,
-                    s.branch,
-                    s.studentId,
-                    h.asession,
-                    h.class,
-                    h.board
-                FROM student AS s
-                LEFT JOIN history AS h 
-                    ON h.studentId = s.studentId
-                WHERE s.registerNo = ?
-                ORDER BY h.asession DESC
-                LIMIT 1
-            ", [$code]);
-
-            if ($student != null) {
-                $code = (string) $student['registerNo'];
-                $branch = (string) $student['branch'];
-                $session = (string) $student['asession'];
-                $class = (string) $student['class'];
-                $board = (string) $student['board'];
-                //check access permission
-                $has_branch_access = in_array($student['branch'], $branches);
-                $has_class_access = false;
-                foreach ($exam_perm["classes"] as $class_perm) {
-                    if ($class_perm["session"] === $session && $class_perm["class"] === $class) {
-                        $has_class_access = true;
-                        break;
-                    }
-                }
-                if ($has_branch_access && $has_class_access) {
-                    $branch_details = $this->getBranchByCode($student['branch']);
-                    //dynamic filed is for displaying data in future if needed
-                    $preview = [];
-                    $preview[] = ['label' => 'Name', 'value' => (string) $student['name']];
-                    $preview[] = ["label" => "Register no", "value" => $code];
-                    $preview[] = ["label" => "Branch", "value" => $branch_details["branch_name"] ?? $branch];
-                    $preview[] = ["label" => "Session", "value" => $session];
-                    $preview[] = ["label" => "Class", "value" => $class];
-                    $preview[] = ["label" => "Board", "value" => $board];
-
-                    $user = [
-                        "preview" => $preview,
-                    ];
-                    $user["perm"] = $exam_perm;
-                } else {
-                    $res->status(403)->json([
-                        'code' => 'error',
-                        'message' => 'Access denied for this student'
-                    ]);
-                    return;
-                }
-            }
-        }
-
-        if (!$user) {
-            $res->status(404)->json([
+        try {
+            $user = $this->resolveUser($event, $code);
+        } catch (\Exception $e) {
+            $status = $e->getCode() && $e->getCode() >= 100 ? $e->getCode() : 500;
+            $res->status($status)->json([
                 'code' => 'error',
-                'message' => 'User not found'
+                'message' => $e->getMessage()
             ]);
             return;
         }
 
-        //check event settings for exit and recurring
+        // Check event settings
+        $has_exit = $event["allow_exit"] === "Yes";
+        $has_recurring = $event["allow_recurring"] === "Yes";
         $is_already_marked = false;
-        $has_exit = $event["allow_exit"] == "Yes" ? true : false;
-        $has_recurring = $event["allow_recurring"] == "Yes" ? true : false;
+        $active_date = date('Y-m-d');
+        $timestamp = date('Y-m-d H:i:s');
 
-        //find attendance and mark attendance if not marked already
-        $attendance = DbHelper::selectOne("SELECT * FROM event_attendances WHERE event_id=? AND user_code=? ORDER BY dated DESC LIMIT 1", [$event['event_id'], $code]);
-        if ($attendance == null) {
-            //mark attendance
-            $attendance_data = [
+        // Find existing attendance
+        $attendance = DbHelper::selectOne(
+            "SELECT * FROM event_attendances WHERE event_id=? AND user_code=? ORDER BY dated DESC LIMIT 1", 
+            [$event['event_id'], $code]
+        );
+
+        if (!$attendance) {
+            if ($direction === 'exit') {
+                $res->status(400)->json([
+                    'code' => 'error',
+                    'message' => 'No active entry found to exit'
+                ]);
+                return;
+            }
+
+            // Create new attendance
+            $attendance = [
                 'event_id' => $event['event_id'],
                 'user_code' => $code,
-                'entry_time' => date('Y-m-d H:i:s'),
-                'dated' => date('Y-m-d'),
+                'entry_time' => $timestamp,
+                'dated' => $active_date,
             ];
-            DbHelper::insert('event_attendances', $attendance_data);
-            $attendance = $attendance_data;
-        }
-        // update exit time if allowed
-        else if ($attendance["dated"] == date('Y-m-d') && $has_exit && $attendance['exit_time'] == null) {
-            DbHelper::update('event_attendances', ['exit_time' => date('Y-m-d H:i:s')], 'event_attendance_id=?', [$attendance['event_attendance_id']]);
-            $attendance['exit_time'] = date('Y-m-d H:i:s');
-        }
-        // add new attendance for recurring
-        else if ($attendance['dated'] != date('Y-m-d') && $has_recurring) {
-            //mark attendance again for recurring
-            $attendance_data = [
-                'event_id' => $event['event_id'],
-                'user_code' => $code,
-                'entry_time' => date('Y-m-d H:i:s'),
-                'dated' => date('Y-m-d'),
-            ];
-            DbHelper::insert('event_attendances', $attendance_data);
-            $attendance = $attendance_data;
+            DbHelper::insert('event_attendances', $attendance);
+        } elseif ($direction === 'exit') {
+            // Processing Exit
+            if ($attendance["dated"] !== $active_date) {
+                $res->status(400)->json([
+                    'code' => 'error',
+                    'message' => 'No active entry found to exit'
+                ]);
+                return;
+            }
+
+            if ($has_exit && $attendance['exit_time'] === null) {
+                DbHelper::update(
+                    'event_attendances', 
+                    ['exit_time' => $timestamp], 
+                    'event_attendance_id=?', 
+                    [$attendance['event_attendance_id']]
+                );
+                $attendance['exit_time'] = $timestamp;
+            } else {
+                $is_already_marked = true;
+            }
         } else {
-            $is_already_marked = true;
+            // Processing Entry (Recurring check)
+            if ($attendance['dated'] !== $active_date && $has_recurring) {
+                $attendance = [
+                    'event_id' => $event['event_id'],
+                    'user_code' => $code,
+                    'entry_time' => $timestamp,
+                    'dated' => $active_date,
+                ];
+                DbHelper::insert('event_attendances', $attendance);
+            } else {
+                $is_already_marked = true;
+            }
         }
 
+        // Prepare response
         $user["preview"][] = ["label" => "Entry Time", "value" => DateTimeHelper::formatHumanDateTime($attendance["entry_time"])];
-        if (isset($attendance['exit_time']) && $attendance['exit_time'] != null) {
+        
+        if (!empty($attendance['exit_time'])) {
             $user["preview"][] = ["label" => "Exit Time", "value" => DateTimeHelper::formatHumanDateTime($attendance["exit_time"])];
         }
-        if ($is_already_marked) {
-            $user["preview"][] = ["label" => "Status", "value" => "Already Marked"];
-        } else {
-            $user["preview"][] = ["label" => "Status", "value" => "Marked Successfully"];
+        
+        $user["preview"][] = [
+            "label" => "Status", 
+            "value" => $is_already_marked ? "Already Marked" : "Marked Successfully"
+        ];
+
+        $responseData = ['user' => $user];
+        if ($direction === 'entry') {
+            $responseData['canExit'] = $has_exit;
         }
 
+        $res->json(MockDataHelper::apiResponse($responseData, 'User retrieved successfully'));
+    }
 
-        $res->json(MockDataHelper::apiResponse([
-            'user' => $user
-        ], 'User retrieved successfully'),);
+    /**
+     * Resolve user details based on event type.
+     * 
+     * @throws \Exception
+     */
+    private function resolveUser(array $event, string $code): array
+    {
+        $type = $event["event_type"];
+        
+        switch ($type) {
+            case 'admin':
+                $admin = DbHelper::selectOne(
+                    "SELECT name, adminId, username, branch_code, adminType FROM admin WHERE username=? LIMIT 1", 
+                    [$code]
+                );
+                
+                if (!$admin) {
+                    throw new \Exception('User not found', 404);
+                }
+
+                $branch = $this->getBranchByCode($admin['branch_code']);
+                $preview = [
+                    ["label" => "Name", "value" => (string) $admin["name"]],
+                    ["label" => "Username", "value" => (string) $admin["username"]],
+                    ["label" => "Type", "value" => $admin["adminType"] ?? "N/A"],
+                ];
+
+                if ($branch && $admin["branch_code"]) {
+                    $preview[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
+                }
+                
+                return ["preview" => $preview];
+
+            case 'student':
+                $student = DbHelper::selectOne("
+                    SELECT s.name, s.registerNo, s.branch, s.studentId, h.asession, h.class, h.board
+                    FROM student AS s
+                    LEFT JOIN history AS h ON h.studentId = s.studentId
+                    WHERE s.registerNo = ?
+                    ORDER BY h.asession DESC LIMIT 1
+                ", [$code]);
+
+                if (!$student) {
+                    throw new \Exception('User not found', 404);
+                }
+
+                $registerNo = (string) $student['registerNo'];
+                $branchCode = (string) $student['branch'];
+                $branchDetails = $this->getBranchByCode($branchCode);
+
+                $preview = [
+                    ['label' => 'Name', 'value' => (string) $student['name']],
+                    ["label" => "Register no", "value" => $registerNo],
+                    ["label" => "Branch", "value" => $branchDetails["branch_name"] ?? $branchCode],
+                    ["label" => "Session", "value" => (string) $student['asession']],
+                    ["label" => "Class", "value" => (string) $student['class']],
+                    ["label" => "Board", "value" => (string) $student['board']]
+                ];
+
+                return ["preview" => $preview];
+
+            case 'exam':
+                $student = DbHelper::selectOne("
+                    SELECT s.name, s.registerNo, s.branch, s.studentId, h.asession, h.class, h.board
+                    FROM student AS s
+                    LEFT JOIN history AS h ON h.studentId = s.studentId
+                    WHERE s.registerNo = ?
+                    ORDER BY h.asession DESC LIMIT 1
+                ", [$code]);
+
+                if (!$student) {
+                    throw new \Exception('User not found', 404);
+                }
+
+                $registerNo = (string) $student['registerNo'];
+                $branchCode = (string) $student['branch'];
+                $branchDetails = $this->getBranchByCode($branchCode);
+
+                $preview = [
+                    ['label' => 'Name', 'value' => (string) $student['name']],
+                    ["label" => "Register no", "value" => $registerNo],
+                    ["label" => "Branch", "value" => $branchDetails["branch_name"] ?? $branchCode],
+                    ["label" => "Session", "value" => (string) $student['asession']],
+                    ["label" => "Class", "value" => (string) $student['class']],
+                    ["label" => "Board", "value" => (string) $student['board']]
+                ];
+
+                // Exam logic
+                $examPerm = $this->getExamPerm($event);
+                $allowedBranches = $examPerm["branches"] ?? [];
+                
+                $hasBranchAccess = in_array($branchCode, $allowedBranches);
+                $hasClassAccess = false;
+                
+                foreach ($examPerm["classes"] as $classPerm) {
+                    if ($classPerm["session"] === (string)$student['asession'] && $classPerm["class"] === (string)$student['class']) {
+                        $hasClassAccess = true; 
+                        break;
+                    }
+                }
+
+                if (!$hasBranchAccess || !$hasClassAccess) {
+                    throw new \Exception('Access denied for this student', 403);
+                }
+
+                return [
+                    "preview" => $preview,
+                    "perm" => $examPerm
+                ];
+
+            case 'admission':
+                $sessionDetail = DbHelper::selectOne(
+                    'SELECT * FROM admission_exam_session WHERE admission_exam_session_id=?',
+                    ["1"]
+                );
+
+                if (!$sessionDetail) {
+                    throw new \Exception('Invalid session', 404);
+                }
+
+                $client = new Client(['verify' => false]);
+                $response = $client->get(
+                    'https://aamsystem.in/alameen2023/import_student_api/api/admission.php',
+                    [
+                        'headers' => [
+                            'User-Agent' => 'Mozilla/5.0 (compatible; Al-Ameen-Face/1.0)',
+                            'Accept' => 'application/json, text/plain, */*'
+                        ],
+                        'query' => [
+                            'action' => 'get_students_by_form_no',
+                            'controll_session' => $sessionDetail['control_session_id'],
+                            'form_no' => $code
+                        ]
+                    ]
+                );
+
+                $status = $response->getStatusCode();
+                if ($status !== 200) {
+                     // Could log specific error here if needed
+                     throw new \Exception('API request failed', $status);
+                }
+
+                $body = $response->getBody()->getContents();
+                $cleanBody = trim(ltrim($body, "\xEF\xBB\xBF"));
+
+                if (empty($cleanBody) || (substr($cleanBody, 0, 1) !== '{' && substr($cleanBody, 0, 1) !== '[')) {
+                    throw new \Exception('Invalid response format from external API', 500);
+                }
+
+                $decoded = json_decode($cleanBody, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new \Exception('Failed to decode JSON response', 500);
+                }
+
+                $result = $decoded['data'] ?? [];
+                $studentData = $result[0] ?? null;
+
+                if (!$studentData || !isset($studentData['form_no']) || $studentData['form_no'] != $code) {
+                    throw new \Exception('User not found', 404);
+                }
+
+                return [
+                    "preview" => [
+                        ['label' => 'Name', 'value' => (string) $studentData['student_name']],
+                        ["label" => "Form no", "value" => (string) $studentData['form_no']],
+                        ['label' => 'Class', 'value' => (string) $studentData['class_name']]
+                    ]
+                ];
+
+            default:
+                throw new \Exception('Unknown event type', 400);
+        }
     }
 }
+
