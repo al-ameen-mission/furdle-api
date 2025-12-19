@@ -143,7 +143,6 @@ class EventController
                 'dated' => $active_date,
             ];
             DbHelper::insert('event_attendances', $attendance);
-            $can_exit = $is_exit_allowed;
         }
         // Processing Entry (Recurring check)
         elseif ($active_date !== $attendance['dated'] && $is_recurring_allowed) {
@@ -154,7 +153,6 @@ class EventController
                 'dated' => $active_date,
             ];
             DbHelper::insert('event_attendances', $attendance);
-            $can_exit = $is_exit_allowed;
         }
         // Processing Exit
         elseif ($direction === 'exit' && $active_date == $attendance['dated'] && $is_exit_allowed) {
