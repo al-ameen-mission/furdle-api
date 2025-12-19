@@ -9,11 +9,18 @@ export default function DownloadPage() {
                 </p>
 
                 <div className="flex flex-col gap-4">
-                    <button className="btn btn-primary btn-lg w-full">
+                    <a
+                        href="/download/android-furdle-v1.0.0.apk"
+                        download
+                        className="btn btn-primary btn-lg w-full"
+                    >
                         <Icon icon="mdi:google-play" className="text-2xl" />
                         Download for Android
-                    </button>
-                    <button className="btn btn-outline btn-lg w-full">
+                    </a>
+                    <button
+                        onClick={() => alert("iOS version coming soon!")}
+                        className="btn btn-outline btn-lg w-full"
+                    >
                         <Icon icon="mdi:apple" className="text-2xl" />
                         Download for iOS
                     </button>
