@@ -209,7 +209,7 @@ class EventController
         switch ($type) {
             case 'admin':
                 $admin = DbHelper::selectOne(
-                    "SELECT name, adminId, username, branch_code, adminType FROM admin WHERE username=? LIMIT 1",
+                    "SELECT name, adminId, employee_code, branch_code, adminType FROM admin WHERE employee_code=? LIMIT 1",
                     [$code]
                 );
 
@@ -220,7 +220,7 @@ class EventController
                 $branch = $this->getBranchByCode($admin['branch_code']);
                 $preview = [
                     ["label" => "Name", "value" => (string) $admin["name"]],
-                    ["label" => "Username", "value" => (string) $admin["username"]],
+                    ["label" => "Employee Code", "value" => (string) $admin["employee_code"]],
                     ["label" => "Type", "value" => $admin["adminType"] ?? "N/A"],
                 ];
 

@@ -63,14 +63,14 @@ class UserController
         //for admin call database
         $user = null;
         if ($type == "admin") {
-            $admin = DbHelper::selectOne("SELECT name, adminId, username, branch_code, adminType FROM admin WHERE username=? LIMIT 1", [$code]);
+            $admin = DbHelper::selectOne("SELECT name, adminId, employee_code, branch_code, adminType FROM admin WHERE employee_code=? LIMIT 1", [$code]);
             if ($admin != null) {
-                $code = $admin["username"];
+                $code = $admin["employee_code"];
                 $branch = $this->getBranchByCode($admin['branch_code']);
 
                 // view only for preview purpose in future
                 $preview = [];
-                $preview[] = ["label" => "Username", "value" => (string) $admin["username"]];
+                $preview[] = ["label" => "Employee Code", "value" => (string) $admin["employee_code"]];
                 $preview[] = ["label" => "Type", "value" => $admin["adminType"] ?? "N/A"];
                 if ($branch != null && $admin["branch_code"] != null) {
                     $preview[] = ["label" => "Branch", "value" => $branch["branch_name"] ?? $admin["branch_code"]];
@@ -147,6 +147,6 @@ class UserController
 
         $res->json(MockDataHelper::apiResponse([
             'user' => $user
-        ], 'User retrieved successfully'),);
+        ], 'User retrieved successfully'), );
     }
 }
