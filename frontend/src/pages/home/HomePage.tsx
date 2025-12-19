@@ -15,10 +15,21 @@ export default function HomePage() {
               Al-Ameen
               <span className="block text-primary">Face Recognition</span>
             </h1>
-            <p className="text-xl text-base-content/70 max-w-3xl mx-auto leading-relaxed mb-12">
+            <p className="text-xl text-base-content/70 max-w-3xl mx-auto leading-relaxed mb-8">
               Revolutionizing identity verification with cutting-edge biometric technology.
               Secure, fast, and reliable face registration for modern institutions.
             </p>
+            
+            <div className="flex justify-center mb-12">
+              <a 
+                href="/download/android-furdle-v1.0.0.apk" 
+                download
+                className="btn btn-primary btn-lg gap-3 shadow-lg hover:shadow-primary/20"
+              >
+                <Icon icon="hugeicons:android" className="text-2xl" />
+                Download Android App
+              </a>
+            </div>
             <div className="flex flex-wrap justify-center gap-6 text-base-content/60">
               <div className="flex items-center bg-base-100/50 px-4 py-2 rounded-full">
                 <Icon icon="hugeicons:shield-01" className="text-2xl mr-3 text-success" />
