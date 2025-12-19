@@ -116,6 +116,7 @@ class EventController
         $is_recurring_allowed = $event["allow_recurring"] === "Yes";
         $is_already_marked = false;
         $can_exit = false;
+        $status = null;
         $active_date = date('Y-m-d');
         $timestamp = date('Y-m-d H:i:s');
 
@@ -156,6 +157,7 @@ class EventController
 
             ];
             DbHelper::insert('event_attendances', array_merge($attendance, $user["data_to_save"]));
+            $status = "ENTRY_SUCCESS";
         }
         // Processing Entry (Recurring check)
         elseif ($active_date !== $attendance['dated'] && $is_recurring_allowed) {
@@ -165,6 +167,7 @@ class EventController
                 'dated' => $active_date,
             ];
             DbHelper::insert('event_attendances', array_merge($attendance, $user["data_to_save"]));
+            $status = "ENTRY_SUCCESS";
         }
         // Processing Exit
         elseif ($direction === 'exit' && $active_date == $attendance['dated'] && $is_exit_allowed) {
@@ -175,9 +178,11 @@ class EventController
                 [$attendance['event_attendance_id']]
             );
             $attendance['exit_time'] = $timestamp;
+            $status = "EXIT_SUCCESS";
         } else if ($active_date == $attendance['dated']) {
             $is_already_marked = true;
             $can_exit = $is_exit_allowed && @$attendance['exit_time'] === null;
+            $status = "DUPLICATE_ENTRY";
         } else {
             $res->status(400)->json([
                 'code' => 'error',
@@ -193,15 +198,11 @@ class EventController
             $user["preview"][] = ["label" => "Exit Time", "value" => DateTimeHelper::formatHumanDateTime($attendance["exit_time"])];
         }
 
-        $user["preview"][] = [
-            "label" => "Status",
-            "value" => $is_already_marked ? "Already Marked" : "Marked Successfully"
-        ];
-
         $response_data = [
             'user' => $user,
             "direction" => $direction,
-            "canExit" => $can_exit && $direction == "entry"
+            "canExit" => $can_exit && $direction == "entry",
+            "status" => $status,
         ];
 
         $res->json(MockDataHelper::apiResponse($response_data, 'User retrieved successfully'));
